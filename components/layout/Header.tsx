@@ -1,16 +1,47 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 export default function Header() {
-    return (
-      <header
-        style={{
-          backgroundColor: "#ffffff",
-          borderBottom: "1px solid #e5e7eb",
-          padding: "20px 24px",
-        }}
-      >
-        <h1 style={{ margin: 0, fontSize: "28px" }}>Bookings Admin</h1>
-        <p style={{ margin: "6px 0 0", color: "#6b7280", fontSize: "14px" }}>
-          Plataforma de gestión de reservas y cobros
-        </p>
-      </header>
-    );
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark") {
+      document.documentElement.classList.add("dark");
+      setDark(true);
+    }
+  }, []);
+
+  function toggleDark() {
+    const next = !dark;
+    setDark(next);
+    if (next) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
   }
+
+  return (
+    <header className="admin-header">
+      <div>
+        <h1 className="admin-header__title">Bookings Admin</h1>
+        <p className="admin-header__subtitle">Plataforma de gestión de reservas y cobros</p>
+      </div>
+      <div className="admin-header__actions">
+        <button
+          type="button"
+          onClick={toggleDark}
+          className="secondary-btn"
+          title={dark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          style={{ fontSize: 18, padding: "8px 14px" }}
+        >
+          {dark ? "☀️" : "🌙"}
+        </button>
+      </div>
+    </header>
+  );
+}
