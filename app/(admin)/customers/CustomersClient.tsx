@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { Customer, CreateCustomerDto, UpdateCustomerDto } from "@/lib/api";
+import type { Customer, CreateCustomerDto, UpdateCustomerDto} from "@/lib/api";
 import { createCustomer, updateCustomer, deleteCustomer } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { useEffect } from "react";
 
 export default function CustomersClient({ initialCustomers }: { initialCustomers: Customer[] }) {
   const { t } = useI18n();
@@ -27,6 +28,15 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
     c.email.toLowerCase().includes(search.toLowerCase()) ||
     c.phone.includes(search)
   );
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+        const res = await fetch("/api/customers/with-next-appointment");
+        const data: Customer[] = await res.json();
+        setCustomers(data);
+    };
+    fetchCustomers();
+  })
 
   function validatePhone(value: string): string {
     if (/[a-zA-Z]/.test(value)) return t("phoneError1");
@@ -192,7 +202,11 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
               <p className="customer-name">{customer.name}</p>
               <p className="customer-meta">{customer.phone}</p>
               <p className="customer-meta">{customer.email}</p>
-              <div className="customer-tag">Business ID: {customer.businessId}</div>
+              <div className="customer-tag">Siguiente reserva: {" "}
+                {customer.nextAppointment
+                    ? new Date(customer.nextAppointment).toLocaleDateString()
+                : "Sin citas"}
+              </div>
               <button type="button" onClick={() => openEditForm(customer)}
                 style={{ position: "absolute", bottom: 12, right: 12, background: "none", border: "none", cursor: "pointer", fontSize: 18, opacity: 0.5 }}
                 title={t("editBtn")}>

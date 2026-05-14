@@ -33,7 +33,7 @@
   name: string;
   email: string;
   phone: string;
-  businessId: number;
+  nextAppointment: string | null;
 }
 
 export async function getCustomers(): Promise<Customer[]> {
