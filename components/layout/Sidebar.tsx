@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useI18n } from "@/lib/i18n";
 
 const menuItems = [
   { label: "Dashboard", href: "/dashboard", icon: "◫" },
@@ -12,6 +13,14 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { t } = useI18n();
+
+  const menuItems = [
+    { label: t("navDashboard"), href: "/dashboard", icon: "◫" },
+    { label: t("navBookings"), href: "/bookings", icon: "☰" },
+    { label: t("navCustomers"), href: "/customers", icon: "◎" },
+    { label: t("navPayments"), href: "/payments", icon: "◌" },
+  ];
 
   return (
     <aside className="admin-sidebar">
