@@ -37,7 +37,8 @@ export default function CustomersClient({
 
     const filteredCustomers = customers.filter((c) =>
         c.name.toLowerCase().includes(search.toLowerCase()) ||
-        c.email.toLowerCase().includes(search.toLowerCase())
+        c.email.toLowerCase().includes(search.toLowerCase()) ||
+        c.phone.includes(search)
     );
 
     async function handleCreateSubmit(e: React.FormEvent<HTMLFormElement>) {
