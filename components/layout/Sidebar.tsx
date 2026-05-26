@@ -4,13 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
 
-const menuItems = [
-  { label: "Dashboard", href: "/dashboard", icon: "◫" },
-  { label: "Bookings", href: "/bookings", icon: "☰" },
-  { label: "Customers", href: "/customers", icon: "◎" },
-  { label: "Payments", href: "/payments", icon: "◌" },
-];
-
 export default function Sidebar() {
   const pathname = usePathname();
   const { t } = useI18n();
@@ -20,6 +13,7 @@ export default function Sidebar() {
     { label: t("navBookings"), href: "/bookings", icon: "☰" },
     { label: t("navCustomers"), href: "/customers", icon: "◎" },
     { label: t("navPayments"), href: "/payments", icon: "◌" },
+    { label: t("navBusinesses"), href: "/businesses", icon: "◈" },
   ];
 
   return (

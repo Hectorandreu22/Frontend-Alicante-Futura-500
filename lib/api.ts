@@ -1,121 +1,119 @@
-  export type BookingStatus = "pending" | "confirmed" | "paid";
+export type BookingStatus = "pending" | "confirmed" | "paid";
 
-  export interface Booking {
-    id: number;
-    date: string;
-    time: string;
-    status: BookingStatus;
-    customerId: number;
-    businessId: number;
-    serviceName: string;
-  }
+export interface Booking {
+  id: number;
+  date: string;
+  time: string;
+  status: BookingStatus;
+  customerId: number;
+  businessId: number;
+  serviceName: string;
+}
 
-  export interface CreateBookingDto {
-    date: string;
-    time: string;
-    status: BookingStatus;
-    customerId: number;
-    businessId: number;
-    serviceName: string;
-  }
+export interface CreateBookingDto {
+  date: string;
+  time: string;
+  status: BookingStatus;
+  customerId: number;
+  businessId: number;
+  serviceName: string;
+}
 
-  export interface UpdateBookingDto {
-    date?: string;
-    time?: string;
-    status?: BookingStatus;
-    customerId?: number;
-    businessId?: number;
-    serviceName?: string;
-  }
+export interface UpdateBookingDto {
+  date?: string;
+  time?: string;
+  status?: BookingStatus;
+  customerId?: number;
+  businessId?: number;
+  serviceName?: string;
+}
 
-  export interface Customer {
+export interface Customer {
   id: number;
   name: string;
   email: string;
   phone: string;
   nextAppointment: string | null;
+  businessId: number;
 }
 
-export async function getCustomers(): Promise<Customer[]> {
-  const res = await fetch(`${API_URL}/customers`, {
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    throw new Error("Error al obtener los clientes");
-  }
-
-  return res.json();
-}
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-
-  export async function getAppointments(): Promise<Booking[]> {
-    const res = await fetch(`${API_URL}/appointments`, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      throw new Error("Error al obtener las reservas");
-    }
-
-    return res.json();
-  }
-
-  export async function createAppointment(data: CreateBookingDto): Promise<Booking> {
-    const res = await fetch(`${API_URL}/appointments`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!res.ok) {
-      throw new Error("Error al crear la reserva");
-    }
-
-    return res.json();
-  }
-
-  export async function updateAppointment(
-    id: number,
-    data: UpdateBookingDto
-  ): Promise<Booking> {
-    const res = await fetch(`${API_URL}/appointments/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!res.ok) {
-      throw new Error("Error al editar la reserva");
-    }
-
-    return res.json();
-  }
-
-  export async function deleteAppointment(
-    id: number
-  ): Promise<{ message: string }> {
-    const res = await fetch(`${API_URL}/appointments/${id}`, {
-      method: "DELETE",
-    });
-
-    if (!res.ok) {
-      throw new Error("Error al eliminar la reserva");
-    }
-
-    return res.json();
-  }
-
-  export interface CreateCustomerDto {
+export interface CreateCustomerDto {
   name: string;
   email: string;
   phone: string;
   businessId: number;
+}
+
+export interface UpdateCustomerDto {
+  name?: string;
+  email?: string;
+  phone?: string;
+  businessId?: number;
+}
+
+export interface Business {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+  price: number;
+}
+
+export interface CreateBusinessDto {
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+  price: number;
+}
+
+export interface UpdateBusinessDto {
+  name?: string;
+  email?: string;
+  phone?: string;
+  service?: string;
+  price?: number;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+export async function getAppointments(): Promise<Booking[]> {
+  const res = await fetch(`${API_URL}/appointments`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Error al obtener las reservas");
+  return res.json();
+}
+
+export async function createAppointment(data: CreateBookingDto): Promise<Booking> {
+  const res = await fetch(`${API_URL}/appointments`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Error al crear la reserva");
+  return res.json();
+}
+
+export async function updateAppointment(id: number, data: UpdateBookingDto): Promise<Booking> {
+  const res = await fetch(`${API_URL}/appointments/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Error al editar la reserva");
+  return res.json();
+}
+
+export async function deleteAppointment(id: number): Promise<{ message: string }> {
+  const res = await fetch(`${API_URL}/appointments/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Error al eliminar la reserva");
+  return res.json();
+}
+
+export async function getCustomers(): Promise<Customer[]> {
+  const res = await fetch(`${API_URL}/customers`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Error al obtener los clientes");
+  return res.json();
 }
 
 export async function createCustomer(data: CreateCustomerDto): Promise<Customer> {
@@ -128,20 +126,6 @@ export async function createCustomer(data: CreateCustomerDto): Promise<Customer>
   return res.json();
 }
 
-export async function deleteCustomer(id: number): Promise<void> {
-  const res = await fetch(`${API_URL}/customers/${id}`, {
-    method: "DELETE",
-  });
-  if (!res.ok) throw new Error("Error al eliminar el cliente");
-}
-
-export interface UpdateCustomerDto {
-  name?: string;
-  email?: string;
-  phone?: string;
-  businessId?: number;
-}
-
 export async function updateCustomer(id: number, data: UpdateCustomerDto): Promise<Customer> {
   const res = await fetch(`${API_URL}/customers/${id}`, {
     method: "PATCH",
@@ -150,4 +134,40 @@ export async function updateCustomer(id: number, data: UpdateCustomerDto): Promi
   });
   if (!res.ok) throw new Error("Error al actualizar el cliente");
   return res.json();
+}
+
+export async function deleteCustomer(id: number): Promise<void> {
+  const res = await fetch(`${API_URL}/customers/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Error al eliminar el cliente");
+}
+
+export async function getBusinesses(): Promise<Business[]> {
+  const res = await fetch(`${API_URL}/businesses`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Error al obtener los negocios");
+  return res.json();
+}
+
+export async function createBusiness(data: CreateBusinessDto): Promise<Business> {
+  const res = await fetch(`${API_URL}/businesses`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Error al crear el negocio");
+  return res.json();
+}
+
+export async function updateBusiness(id: number, data: UpdateBusinessDto): Promise<Business> {
+  const res = await fetch(`${API_URL}/businesses/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Error al actualizar el negocio");
+  return res.json();
+}
+
+export async function deleteBusiness(id: number): Promise<void> {
+  const res = await fetch(`${API_URL}/businesses/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Error al eliminar el negocio");
 }

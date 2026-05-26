@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { Booking, BookingStatus, CreateBookingDto, UpdateBookingDto } from "@/lib/api";
-import { createAppointment, deleteAppointment, updateAppointment } from "@/lib/api";
+import { useEffect, useMemo, useState } from "react";
+import type { Booking, BookingStatus, Business, CreateBookingDto, Customer, UpdateBookingDto } from "@/lib/api";
+import { createAppointment, deleteAppointment, getBusinesses, getCustomers, updateAppointment } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 
 function StatusBadge({ status, t }: { status: BookingStatus; t: (k: string) => string }) {
@@ -19,8 +19,15 @@ function formatDate(date: string) {
 export default function BookingsClient({ initialBookings }: { initialBookings: Booking[] }) {
   const { t } = useI18n();
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
 
-  const emptyForm: CreateBookingDto = { date: "", time: "", status: "pending", customerId: 1, businessId: 1, serviceName: "" };
+  useEffect(() => {
+    getCustomers().then(setCustomers).catch(console.error);
+    getBusinesses().then(setBusinesses).catch(console.error);
+  }, []);
+
+  const emptyForm: CreateBookingDto = { date: "", time: "", status: "pending", customerId: 0, businessId: 0, serviceName: "" };
 
   const [createForm, setCreateForm] = useState<CreateBookingDto>(emptyForm);
   const [editForm, setEditForm] = useState<CreateBookingDto>(emptyForm);
@@ -117,6 +124,29 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
     finally { setDeletingBookingId(null); }
   }
 
+  // Selector reutilizable para cliente y negocio
+  function CustomerSelect({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+    return (
+      <select className="select" value={value} onChange={(e) => onChange(Number(e.target.value))} required>
+        <option value={0} disabled>Selecciona cliente</option>
+        {customers.map((c) => (
+          <option key={c.id} value={c.id}>{c.name}</option>
+        ))}
+      </select>
+    );
+  }
+
+  function BusinessSelect({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+    return (
+      <select className="select" value={value} onChange={(e) => onChange(Number(e.target.value))} required>
+        <option value={0} disabled>Selecciona negocio</option>
+        {businesses.map((b) => (
+          <option key={b.id} value={b.id}>{b.name}</option>
+        ))}
+      </select>
+    );
+  }
+
   return (
     <div className="page-stack">
       <section className="page-hero">
@@ -165,8 +195,8 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
                 <option value="confirmed">{t("statusConfirmed")}</option>
                 <option value="paid">{t("statusPaid")}</option>
               </select>
-              <input className="input" type="number" min={1} value={createForm.customerId} onChange={(e) => updateCreateForm("customerId", Number(e.target.value))} placeholder="Customer ID" required />
-              <input className="input" type="number" min={1} value={createForm.businessId} onChange={(e) => updateCreateForm("businessId", Number(e.target.value))} placeholder="Business ID" required />
+              <CustomerSelect value={createForm.customerId} onChange={(v) => updateCreateForm("customerId", v)} />
+              <BusinessSelect value={createForm.businessId} onChange={(v) => updateCreateForm("businessId", v)} />
               <input className="input input--full" type="text" value={createForm.serviceName} onChange={(e) => updateCreateForm("serviceName", e.target.value)} placeholder={t("colService")} required />
             </div>
             {errorMessage && <div className="message-error">{errorMessage}</div>}
@@ -194,8 +224,8 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
                 <option value="confirmed">{t("statusConfirmed")}</option>
                 <option value="paid">{t("statusPaid")}</option>
               </select>
-              <input className="input" type="number" min={1} value={editForm.customerId} onChange={(e) => updateEditForm("customerId", Number(e.target.value))} placeholder="Customer ID" required />
-              <input className="input" type="number" min={1} value={editForm.businessId} onChange={(e) => updateEditForm("businessId", Number(e.target.value))} placeholder="Business ID" required />
+              <CustomerSelect value={editForm.customerId} onChange={(v) => updateEditForm("customerId", v)} />
+              <BusinessSelect value={editForm.businessId} onChange={(v) => updateEditForm("businessId", v)} />
               <input className="input input--full" type="text" value={editForm.serviceName} onChange={(e) => updateEditForm("serviceName", e.target.value)} placeholder={t("colService")} required />
             </div>
             {errorMessage && <div className="message-error">{errorMessage}</div>}
@@ -259,8 +289,8 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
                 <td>{formatDate(booking.date)}</td>
                 <td>{booking.time}</td>
                 <td>{booking.serviceName}</td>
-                <td>{booking.customerId}</td>
-                <td>{booking.businessId}</td>
+                <td>{customers.find(c => c.id === booking.customerId)?.name ?? booking.customerId}</td>
+                <td>{businesses.find(b => b.id === booking.businessId)?.name ?? booking.businessId}</td>
                 <td><StatusBadge status={booking.status} t={t} /></td>
                 <td>
                   <div style={{ display: "flex", gap: 8 }}>
