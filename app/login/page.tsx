@@ -18,17 +18,18 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await fetch("http://localhost:3000/customers/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
-      const data = await result.json();
+      const data = await res.json();
 
-      if (!result.ok) {
+      if (!res.ok) {
         setError(data.message || "Email o contraseña incorrectos.");
         return;
       }
@@ -39,11 +40,10 @@ export default function LoginPage() {
       }
 
       localStorage.setItem("token", data.access_token);
-
       router.push("/dashboard");
       router.refresh();
 
-    } catch (err) {
+    } catch {
       setError("Error de conexión con el servidor.");
     } finally {
       setLoading(false);
@@ -68,9 +68,7 @@ export default function LoginPage() {
         </div>
 
         <h2 className="auth-heading">Bienvenido de nuevo</h2>
-        <p className="auth-subheading">
-          Accede a tu panel de administración
-        </p>
+        <p className="auth-subheading">Accede a tu panel de administración</p>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="auth-field">

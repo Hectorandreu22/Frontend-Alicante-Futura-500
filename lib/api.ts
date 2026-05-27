@@ -51,32 +51,68 @@ export interface UpdateCustomerDto {
   businessId?: number;
 }
 
+// ─── Business & Services ────────────────────────────────────────────────────
+
+/**
+ * Representa un servicio individual de un negocio.
+ * Cada servicio tiene su propio nombre y precio.
+ */
+export interface BusinessService {
+  id?: number;       // Opcional en creación; presente tras persistir en BD
+  name: string;
+  price: number;
+}
+
+/**
+ * Negocio con soporte para múltiples servicios.
+ * Los campos `service` y `price` anteriores han sido reemplazados
+ * por el array `services` para permitir N servicios por negocio.
+ */
 export interface Business {
   id: number;
   name: string;
   email: string;
   phone: string;
-  service: string;
-  price: number;
+  services: BusinessService[];
 }
 
+/**
+ * DTO para crear un nuevo negocio.
+ * Se envía al menos un servicio en el array `services`.
+ */
 export interface CreateBusinessDto {
   name: string;
   email: string;
   phone: string;
-  service: string;
-  price: number;
+  services: BusinessService[];
 }
 
+/**
+ * DTO para actualizar un negocio existente.
+ * Todos los campos son opcionales; `services` reemplaza
+ * la lista completa de servicios si se incluye.
+ */
 export interface UpdateBusinessDto {
   name?: string;
   email?: string;
   phone?: string;
-  service?: string;
-  price?: number;
+  services?: BusinessService[];
 }
 
+/**
+ * Versión simplificada de Business para selectores (id + name).
+ * Usada en CustomersClient para el selector de negocio.
+ */
+export interface BusinessOption {
+  id: number;
+  name: string;
+}
+
+// ─── API URL ─────────────────────────────────────────────────────────────────
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+// ─── Appointments ─────────────────────────────────────────────────────────────
 
 export async function getAppointments(): Promise<Booking[]> {
   const res = await fetch(`${API_URL}/appointments`, { cache: "no-store" });
@@ -110,6 +146,8 @@ export async function deleteAppointment(id: number): Promise<{ message: string }
   return res.json();
 }
 
+// ─── Customers ────────────────────────────────────────────────────────────────
+
 export async function getCustomers(): Promise<Customer[]> {
   const res = await fetch(`${API_URL}/customers`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al obtener los clientes");
@@ -141,10 +179,23 @@ export async function deleteCustomer(id: number): Promise<void> {
   if (!res.ok) throw new Error("Error al eliminar el cliente");
 }
 
+// ─── Businesses ───────────────────────────────────────────────────────────────
+
 export async function getBusinesses(): Promise<Business[]> {
   const res = await fetch(`${API_URL}/businesses`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al obtener los negocios");
   return res.json();
+}
+
+/**
+ * Obtiene la lista de negocios en formato simplificado (id + name)
+ * para usar en selectores sin cargar los servicios completos.
+ */
+export async function getBusinessOptions(): Promise<BusinessOption[]> {
+  const res = await fetch(`${API_URL}/businesses`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Error al obtener los negocios");
+  const businesses: Business[] = await res.json();
+  return businesses.map(({ id, name }) => ({ id, name }));
 }
 
 export async function createBusiness(data: CreateBusinessDto): Promise<Business> {
