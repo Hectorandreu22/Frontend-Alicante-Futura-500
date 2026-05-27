@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { signOut, useSession } from "next-auth/react";
 import { useI18n, flags, type Locale } from "@/lib/i18n";
 
 const languages: { locale: Locale; label: string }[] = [
@@ -15,7 +14,6 @@ const languages: { locale: Locale; label: string }[] = [
 
 export default function Header() {
   const { t, locale, setLocale } = useI18n();
-  const { data: session } = useSession();
   const [dark, setDark] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -93,17 +91,6 @@ export default function Header() {
             </div>
           )}
         </div>
-
-        {session?.user && (
-          <button
-            type="button"
-            className="secondary-btn"
-            style={{ fontSize: 14, padding: "8px 14px" }}
-            onClick={() => signOut({ callbackUrl: "/login" })}
-          >
-            {session.user.name || session.user.email} · Salir
-          </button>
-        )}
       </div>
     </header>
   );
