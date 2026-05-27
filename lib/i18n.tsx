@@ -164,6 +164,10 @@ export const translations: Record<Locale, Record<string, string>> = {
         colService2: "Servicio",
         colPrice: "Precio",
         businessesRegistered: "Negocios registrados",
+        addServiceBtn: "Añadir servicio",
+        serviceNameRequired: "Todos los servicios deben tener un nombre.",
+        selectBusiness: "Selecciona un negocio",
+        loadingBusinesses: "Cargando negocios...",
     },
     fr: {
         appTitle: "Bookings Admin",
@@ -309,6 +313,10 @@ export const translations: Record<Locale, Record<string, string>> = {
         colService2: "Service",
         colPrice: "Prix",
         businessesRegistered: "Commerces enregistrés",
+        addServiceBtn: "Ajouter un service",
+        serviceNameRequired: "Tous les services doivent avoir un nom.",
+        selectBusiness: "Sélectionnez un commerce",
+        loadingBusinesses: "Chargement...",
     },
     de: {
         appTitle: "Bookings Admin",
@@ -454,6 +462,10 @@ export const translations: Record<Locale, Record<string, string>> = {
         colService2: "Service",
         colPrice: "Preis",
         businessesRegistered: "Registrierte Geschäfte",
+        addServiceBtn: "Dienst hinzufügen",
+        serviceNameRequired: "Alle Dienste müssen einen Namen haben.",
+        selectBusiness: "Unternehmen auswählen",
+        loadingBusinesses: "Laden...",
     },
     it: {
         appTitle: "Bookings Admin",
@@ -599,6 +611,10 @@ export const translations: Record<Locale, Record<string, string>> = {
         colService2: "Servizio",
         colPrice: "Prezzo",
         businessesRegistered: "Attività registrate",
+        addServiceBtn: "Aggiungi servizio",
+        serviceNameRequired: "Tutti i servizi devono avere un nome.",
+        selectBusiness: "Seleziona un'attività",
+        loadingBusinesses: "Caricamento...",
     },
     en: {
         appTitle: "Bookings Admin",
@@ -744,6 +760,10 @@ export const translations: Record<Locale, Record<string, string>> = {
         colService2: "Service",
         colPrice: "Price",
         businessesRegistered: "Registered businesses",
+        addServiceBtn: "Add service",
+        serviceNameRequired: "All services must have a name.",
+        selectBusiness: "Select a business",
+        loadingBusinesses: "Loading businesses...",
     },
     ht: {
         appTitle: "Bookings Admin",
@@ -889,6 +909,10 @@ export const translations: Record<Locale, Record<string, string>> = {
         colService2: "Sèvis",
         colPrice: "Pri",
         businessesRegistered: "Biznis anrejistre",
+        addServiceBtn: "Ajoute sèvis",
+        serviceNameRequired: "Tout sèvis yo dwe gen yon non.",
+        selectBusiness: "Chwazi yon biznis",
+        loadingBusinesses: "Ap chaje...",
     },
 };
 
