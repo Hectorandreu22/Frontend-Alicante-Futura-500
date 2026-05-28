@@ -84,6 +84,9 @@ export interface CreateBusinessDto {
   name: string;
   email: string;
   phone: string;
+  address: string;
+  zipcode: string;
+  maxCustomers: number;
   services: BusinessService[];
 }
 
