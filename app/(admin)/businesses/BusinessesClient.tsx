@@ -9,6 +9,7 @@ import type {
 } from "@/lib/api";
 import { createBusiness, updateBusiness, deleteBusiness } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { getTokenPayload } from "@/lib/auth";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -165,27 +166,33 @@ export default function BusinessesClient({
   }
 
   async function handleCreateSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    // Validación: todos los servicios deben tener nombre
-    if (createForm.services.some((s) => !s.name.trim())) {
-      setErrorMessage(t("serviceNameRequired"));
+  e.preventDefault();
+  // Validación: todos los servicios deben tener nombre
+  if (createForm.services.some((s) => !s.name.trim())) {
+    setErrorMessage(t("serviceNameRequired"));
+    return;
+  }
+  setLoadingCreate(true);
+  setErrorMessage("");
+  setSuccessMessage("");
+  try {
+    const payload = getTokenPayload();       // 👈 lee el token
+    if (!payload) {
+      setErrorMessage("No hay sesión activa");
       return;
     }
-    setLoadingCreate(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-    try {
-      const created = await createBusiness(createForm);
-      setBusinesses((prev) => [created, ...prev]);
-      setIsCreateOpen(false);
-      setCreateForm(emptyCreateForm());
-      setSuccessMessage(t("businessCreated"));
-    } catch {
-      setErrorMessage(t("businessCreateError"));
-    } finally {
-      setLoadingCreate(false);
-    }
+    const created = await createBusiness({ ...createForm, email: payload.email }); // 👈 añade el email
+    setBusinesses((prev) => [created, ...prev]);
+    setIsCreateOpen(false);
+    setCreateForm(emptyCreateForm());
+    setSuccessMessage(t("businessCreated"));
+  } catch {
+    setErrorMessage(t("businessCreateError"));
+  } finally {
+    setLoadingCreate(false);
   }
+}
+
 
   // ─── Editar ──────────────────────────────────────────────────────────────────
 
