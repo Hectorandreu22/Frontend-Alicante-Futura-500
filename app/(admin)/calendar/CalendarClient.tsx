@@ -150,32 +150,38 @@ function BookingCard({
 }) {
   const cfg = STATUS_CONFIG[booking.status] || STATUS_CONFIG.pending;
   const duration = booking.durationMinutes ?? 60;
+  
   return (
     <div
+      title={`${booking.time} - ${booking.customerName ?? `#${booking.customerId}`}\nServicio: ${booking.serviceName} (${duration} min)`}
       draggable
       onDragStart={onDragStart}
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       style={{
         position: "absolute", left: 2, right: 2,
-        top: `${topPct}%`, height: `${Math.max(heightPct, 2.5)}%`,
-        background: cfg.bg, border: `1.5px solid ${cfg.border}`,
-        borderLeft: `3px solid ${cfg.dot}`,
-        borderRadius: 6, padding: compact ? "2px 6px" : "4px 8px",
+        top: `${topPct}%`, 
+        height: `${Math.max(heightPct, 2)}%`, 
+        /* 💡 LA MAGIA: Color base sólido + Tinte por encima (separados para que no falle) */
+        backgroundColor: "var(--surface)",
+        backgroundImage: `linear-gradient(${cfg.bg}, ${cfg.bg})`,
+        border: `1px solid ${cfg.border}`,
+        borderLeft: `4px solid ${cfg.dot}`,
+        borderRadius: "6px",
+        padding: "6px 8px", 
         cursor: "grab", overflow: "hidden", zIndex: 10,
-        transition: "box-shadow 0.15s ease, transform 0.1s ease",
         userSelect: "none",
+        transition: "opacity 0.15s",
+        display: "flex", flexDirection: "column"
       }}
-      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "scale(1.01)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 16px rgba(0,0,0,0.12)"; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "scale(1)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
+      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.opacity = "0.8"; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.opacity = "1"; }}
     >
-      <div style={{ fontSize: compact ? 10 : 11, fontWeight: 500, color: cfg.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: cfg.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.3 }}>
         {booking.time} · {booking.customerName ?? `#${booking.customerId}`}
       </div>
-      {!compact && (
-        <div style={{ fontSize: 10, color: "var(--color-text-secondary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 1 }}>
-          {booking.serviceName} · {duration}min
-        </div>
-      )}
+      <div style={{ fontSize: 11, color: "var(--text)", opacity: 0.7, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2, lineHeight: 1.3 }}>
+        {booking.serviceName} · {duration}min
+      </div>
     </div>
   );
 }
@@ -200,81 +206,81 @@ function BookingModal({
 
   return (
     <div
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div style={{ background: "var(--color-background-primary)", border: "0.5px solid var(--color-border-tertiary)", borderRadius: 16, padding: "28px 28px 24px", width: "100%", maxWidth: 480, boxShadow: "0 24px 48px rgba(0,0,0,0.18)" }}>
+      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "8px", padding: "28px 28px 24px", width: "100%", maxWidth: 480 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 500 }}>{isNew ? "Nueva reserva" : "Editar reserva"}</h3>
-          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "var(--color-text-secondary)", lineHeight: 1, padding: 4 }}>×</button>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "var(--text)" }}>{isNew ? "Nueva reserva" : "Editar reserva"}</h3>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "var(--muted)", lineHeight: 1, padding: 4 }}>✕</button>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
-              <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 4 }}>Fecha</label>
+              <label style={{ fontSize: 12, color: "var(--muted)", display: "block", marginBottom: 4, fontWeight: 500 }}>Fecha</label>
               <input type="date" value={form.date ?? ""} onChange={e => setForm(p => ({ ...p, date: e.target.value }))}
-                style={{ width: "100%", padding: "7px 10px", border: "0.5px solid var(--color-border-secondary)", borderRadius: 8, fontSize: 13, background: "var(--color-background-secondary)", color: "var(--color-text-primary)" }} />
+                style={{ width: "100%", padding: "8px 12px", border: "1px solid var(--border)", borderRadius: "8px", fontSize: 13, background: "var(--surface)", color: "var(--text)" }} />
             </div>
             <div>
-              <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 4 }}>Hora</label>
+              <label style={{ fontSize: 12, color: "var(--muted)", display: "block", marginBottom: 4, fontWeight: 500 }}>Hora</label>
               <input type="time" value={form.time ?? ""} onChange={e => setForm(p => ({ ...p, time: e.target.value }))}
-                style={{ width: "100%", padding: "7px 10px", border: "0.5px solid var(--color-border-secondary)", borderRadius: 8, fontSize: 13, background: "var(--color-background-secondary)", color: "var(--color-text-primary)" }} />
+                style={{ width: "100%", padding: "8px 12px", border: "1px solid var(--border)", borderRadius: "8px", fontSize: 13, background: "var(--surface)", color: "var(--text)" }} />
             </div>
           </div>
 
           <div>
-            <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 4 }}>Cliente</label>
+            <label style={{ fontSize: 12, color: "var(--muted)", display: "block", marginBottom: 4, fontWeight: 500 }}>Cliente</label>
             <select value={form.customerId ?? ""} onChange={e => {
               const c = customers.find(c => c.id === Number(e.target.value));
               setForm(p => ({ ...p, customerId: Number(e.target.value), customerName: c?.name }));
-            }} style={{ width: "100%", padding: "7px 10px", border: "0.5px solid var(--color-border-secondary)", borderRadius: 8, fontSize: 13, background: "var(--color-background-secondary)", color: "var(--color-text-primary)" }}>
+            }} style={{ width: "100%", padding: "8px 12px", border: "1px solid var(--border)", borderRadius: "8px", fontSize: 13, background: "var(--surface)", color: "var(--text)" }}>
               <option value="">Seleccionar cliente</option>
               {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
 
           <div>
-            <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 4 }}>Negocio</label>
+            <label style={{ fontSize: 12, color: "var(--muted)", display: "block", marginBottom: 4, fontWeight: 500 }}>Negocio</label>
             <select value={form.businessId ?? ""} onChange={e => {
               const b = businesses.find(b => b.id === Number(e.target.value));
               setForm(p => ({ ...p, businessId: Number(e.target.value), businessName: b?.name }));
-            }} style={{ width: "100%", padding: "7px 10px", border: "0.5px solid var(--color-border-secondary)", borderRadius: 8, fontSize: 13, background: "var(--color-background-secondary)", color: "var(--color-text-primary)" }}>
+            }} style={{ width: "100%", padding: "8px 12px", border: "1px solid var(--border)", borderRadius: "8px", fontSize: 13, background: "var(--surface)", color: "var(--text)" }}>
               <option value="">Seleccionar negocio</option>
               {businesses.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
 
           <div>
-            <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 4 }}>Servicio</label>
+            <label style={{ fontSize: 12, color: "var(--muted)", display: "block", marginBottom: 4, fontWeight: 500 }}>Servicio</label>
             <input type="text" value={form.serviceName ?? ""} onChange={e => setForm(p => ({ ...p, serviceName: e.target.value }))}
               placeholder="Nombre del servicio"
-              style={{ width: "100%", padding: "7px 10px", border: "0.5px solid var(--color-border-secondary)", borderRadius: 8, fontSize: 13, background: "var(--color-background-secondary)", color: "var(--color-text-primary)", boxSizing: "border-box" }} />
+              style={{ width: "100%", padding: "8px 12px", border: "1px solid var(--border)", borderRadius: "8px", fontSize: 13, background: "var(--surface)", color: "var(--text)", boxSizing: "border-box" }} />
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
-              <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 4 }}>Duración (min)</label>
+              <label style={{ fontSize: 12, color: "var(--muted)", display: "block", marginBottom: 4, fontWeight: 500 }}>Duración (min)</label>
               <input type="number" min={15} step={15} value={form.durationMinutes ?? 60} onChange={e => setForm(p => ({ ...p, durationMinutes: Number(e.target.value) }))}
-                style={{ width: "100%", padding: "7px 10px", border: "0.5px solid var(--color-border-secondary)", borderRadius: 8, fontSize: 13, background: "var(--color-background-secondary)", color: "var(--color-text-primary)" }} />
+                style={{ width: "100%", padding: "8px 12px", border: "1px solid var(--border)", borderRadius: "8px", fontSize: 13, background: "var(--surface)", color: "var(--text)" }} />
             </div>
             <div>
-              <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 4 }}>Precio (€)</label>
+              <label style={{ fontSize: 12, color: "var(--muted)", display: "block", marginBottom: 4, fontWeight: 500 }}>Precio (€)</label>
               <input type="number" min={0} step={0.01} value={form.price ?? 0} onChange={e => setForm(p => ({ ...p, price: parseFloat(e.target.value) }))}
-                style={{ width: "100%", padding: "7px 10px", border: "0.5px solid var(--color-border-secondary)", borderRadius: 8, fontSize: 13, background: "var(--color-background-secondary)", color: "var(--color-text-primary)" }} />
+                style={{ width: "100%", padding: "8px 12px", border: "1px solid var(--border)", borderRadius: "8px", fontSize: 13, background: "var(--surface)", color: "var(--text)" }} />
             </div>
           </div>
 
           <div>
-            <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 4 }}>Estado</label>
+            <label style={{ fontSize: 12, color: "var(--muted)", display: "block", marginBottom: 4, fontWeight: 500 }}>Estado</label>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {(Object.keys(STATUS_CONFIG) as BookingStatus[]).map(s => (
-                <button key={s} onClick={() => setForm(p => ({ ...p, status: s }))}
+                <button key={s} onClick={() => setForm(p => ({ ...p, status: s }))} type="button"
                   style={{
-                    padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 500, cursor: "pointer",
-                    background: form.status === s ? STATUS_CONFIG[s].bg : "transparent",
-                    border: `1.5px solid ${form.status === s ? STATUS_CONFIG[s].border : "var(--color-border-tertiary)"}`,
-                    color: form.status === s ? STATUS_CONFIG[s].text : "var(--color-text-secondary)",
+                    padding: "6px 14px", borderRadius: "999px", fontSize: 12, fontWeight: 500, cursor: "pointer",
+                    background: form.status === s ? "var(--text)" : "transparent",
+                    border: `1px solid ${form.status === s ? "var(--text)" : "var(--border)"}`,
+                    color: form.status === s ? "var(--bg)" : "var(--muted)",
                     transition: "all 0.15s",
                   }}>
                   {STATUS_CONFIG[s].label}
@@ -284,19 +290,19 @@ function BookingModal({
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 10, marginTop: 24, justifyContent: "space-between" }}>
+        <div style={{ display: "flex", gap: 10, marginTop: 32, justifyContent: "space-between" }}>
           {!isNew && onDelete && (
-            <button onClick={onDelete}
-              style={{ padding: "8px 16px", borderRadius: 8, fontSize: 13, cursor: "pointer", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", color: "#dc2626", fontWeight: 500 }}>
+            <button onClick={onDelete} type="button"
+              style={{ padding: "10px 16px", borderRadius: "8px", fontSize: 13, cursor: "pointer", background: "transparent", border: "1px solid #ef4444", color: "#ef4444", fontWeight: 500 }}>
               Eliminar
             </button>
           )}
           <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
-            <button onClick={onClose} style={{ padding: "8px 16px", borderRadius: 8, fontSize: 13, cursor: "pointer", background: "var(--color-background-secondary)", border: "0.5px solid var(--color-border-secondary)", color: "var(--color-text-primary)" }}>
+            <button onClick={onClose} type="button" style={{ padding: "10px 16px", borderRadius: "8px", fontSize: 13, cursor: "pointer", background: "transparent", border: "1px solid var(--border)", color: "var(--text)" }}>
               Cancelar
             </button>
-            <button onClick={handleSave} disabled={saving}
-              style={{ padding: "8px 20px", borderRadius: 8, fontSize: 13, cursor: saving ? "default" : "pointer", background: "var(--cal-accent)", border: "none", color: "#fff", fontWeight: 500, opacity: saving ? 0.7 : 1, transition: "opacity 0.15s" }}>
+            <button onClick={handleSave} disabled={saving} type="button"
+              style={{ padding: "10px 20px", borderRadius: "8px", fontSize: 13, cursor: saving ? "default" : "pointer", background: "var(--primary)", border: "none", color: "white", fontWeight: 500, opacity: saving ? 0.7 : 1 }}>
               {saving ? "Guardando..." : "Guardar"}
             </button>
           </div>
@@ -322,6 +328,10 @@ function TimeGrid({
   const totalMins = 24 * 60;
   const nowPct = (now.getHours() * 60 + now.getMinutes()) / totalMins * 100;
 
+  // 💡 EL TAMAÑO: 120px por hora (el doble de grande que antes)
+  const HOUR_HEIGHT = 120;
+  const GRID_HEIGHT = 24 * HOUR_HEIGHT; // 2880px en total
+
   function handleDragOver(e: React.DragEvent) { e.preventDefault(); }
 
   function handleDropOnDay(e: React.DragEvent, date: Date) {
@@ -337,13 +347,15 @@ function TimeGrid({
   }
 
   return (
-    <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+    /* 💡 El contenedor ahora obliga a hacer scroll vertical */
+    <div style={{ display: "flex", flex: 1, minHeight: GRID_HEIGHT + 40 }}>
+      
       {/* Hour labels */}
-      <div style={{ width: 52, flexShrink: 0, borderRight: "0.5px solid var(--color-border-tertiary)", position: "relative" }}>
+      <div style={{ width: 52, flexShrink: 0, borderRight: "1px solid var(--border)", position: "relative" }}>
         <div style={{ height: 40 }} />
         {HOURS.map(h => (
-          <div key={h} style={{ height: "calc((100% - 40px) / 24)", display: "flex", alignItems: "flex-start", justifyContent: "flex-end", paddingRight: 10, paddingTop: 2 }}>
-            <span style={{ fontSize: 10, color: "var(--color-text-secondary)", fontVariantNumeric: "tabular-nums" }}>
+          <div key={h} style={{ height: HOUR_HEIGHT, display: "flex", alignItems: "flex-start", justifyContent: "flex-end", paddingRight: 10, paddingTop: 4 }}>
+            <span style={{ fontSize: 11, color: "var(--muted)", fontVariantNumeric: "tabular-nums" }}>
               {h === 0 ? "" : `${pad(h)}:00`}
             </span>
           </div>
@@ -360,21 +372,21 @@ function TimeGrid({
           });
 
           return (
-            <div key={dayIdx} style={{ flex: 1, borderRight: dayIdx < days.length - 1 ? "0.5px solid var(--color-border-tertiary)" : "none", position: "relative", minWidth: 0 }}
+            <div key={dayIdx} style={{ flex: 1, borderRight: dayIdx < days.length - 1 ? "1px solid var(--border)" : "none", position: "relative", minWidth: 0 }}
               onDragOver={handleDragOver}
               onDrop={e => handleDropOnDay(e, day)}>
 
               {/* Day header */}
               <div style={{
                 height: 40, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                borderBottom: "0.5px solid var(--color-border-tertiary)",
+                borderBottom: "1px solid var(--border)",
                 background: isToday ? "rgba(16,185,129,0.04)" : "transparent",
               }}>
-                <span style={{ fontSize: 10, color: "var(--color-text-secondary)", fontWeight: 500 }}>{DAYS_ES[(day.getDay() + 6) % 7]}</span>
+                <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 500 }}>{DAYS_ES[(day.getDay() + 6) % 7]}</span>
                 <span style={{
                   fontSize: 18, fontWeight: isToday ? 500 : 400, lineHeight: 1.2,
-                  color: isToday ? "var(--cal-accent)" : "var(--color-text-primary)",
-                  background: isToday ? "rgba(16,185,129,0.12)" : "transparent",
+                  color: isToday ? "var(--text)" : "var(--text)",
+                  background: isToday ? "var(--surface-2)" : "transparent",
                   width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
                   {day.getDate()}
@@ -382,28 +394,22 @@ function TimeGrid({
               </div>
 
               {/* Hour grid */}
-              <div style={{ position: "relative", height: "calc(100% - 40px)" }}
-                onClick={e => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const pct = (e.clientY - rect.top) / rect.height;
-                  const hour = Math.floor(pct * 24);
-                  onSlotClick(day, hour);
-                }}>
+              <div style={{ position: "relative", height: GRID_HEIGHT }}>
 
                 {HOURS.map(h => (
                   <div key={h} style={{
                     position: "absolute", left: 0, right: 0,
                     top: `${(h / 24) * 100}%`, height: `${(1 / 24) * 100}%`,
-                    borderBottom: "0.5px solid var(--color-border-tertiary)",
-                    borderTop: h % 2 === 0 ? "0.5px solid var(--color-border-tertiary)" : "none",
+                    borderBottom: "1px solid var(--border)",
+                    borderTop: h % 2 === 0 ? "1px solid var(--border)" : "none",
                   }} />
                 ))}
 
                 {/* Current time indicator */}
                 {isToday && (
                   <div style={{ position: "absolute", left: 0, right: 0, top: `${nowPct}%`, zIndex: 20, pointerEvents: "none" }}>
-                    <div style={{ height: 2, background: "var(--cal-accent)", position: "relative" }}>
-                      <div style={{ position: "absolute", left: -4, top: -3, width: 8, height: 8, borderRadius: "50%", background: "var(--cal-accent)" }} />
+                    <div style={{ height: 2, background: "var(--accent)", position: "relative" }}>
+                      <div style={{ position: "absolute", left: -4, top: -3, width: 8, height: 8, borderRadius: "50%", background: "var(--accent)" }} />
                     </div>
                   </div>
                 )}
