@@ -161,8 +161,6 @@ export default function BusinessesClient({ initialBusinesses }: { initialBusines
             <div className="form-grid">
               <input className="input" type="text" placeholder={t("colBusinessName")}
                 value={createForm.name} onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))} required />
-              <input className="input" type="email" placeholder={t("colEmail")}
-                value={createForm.email} onChange={(e) => setCreateForm((p) => ({ ...p, email: e.target.value }))} required />
               <input className="input" type="tel" placeholder={t("colPhone")}
                 value={createForm.phone} onChange={(e) => setCreateForm((p) => ({ ...p, phone: e.target.value }))} required />
               <input className="input" type="text" placeholder="Dirección"
