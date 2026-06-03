@@ -976,7 +976,6 @@ const bookings: DashboardBooking[] = [
   { time: "12:00", client: "Lucía Sánchez",  business: "Barber Studio",     service: "Corte caballero",  status: "paid"      },
 ];
 
-// Monthly revenue data for the mini chart
 const revenueData = [420, 560, 480, 710, 650, 820];
 const monthKeys   = ["Ene", "Feb", "Mar", "Abr", "May", "Jun"];
 
@@ -988,7 +987,6 @@ function Badge({ status, t }: { status: DashboardBookingStatus; t: (k: string) =
   return <span className={`badge badge--${status}`}>{label}</span>;
 }
 
-// ── Simple inline SVG line chart ──
 function MiniLineChart() {
   const max = Math.max(...revenueData);
   const w = 240, h = 80, pad = 12;
@@ -998,7 +996,6 @@ function MiniLineChart() {
     const y = pad + (1 - v / max) * (h - pad * 2);
     return `${x},${y}`;
   }).join(" ");
-
   const areaPoints = [
     `${pad},${h - pad}`,
     ...revenueData.map((v, i) => {
@@ -1008,7 +1005,6 @@ function MiniLineChart() {
     }),
     `${pad + (revenueData.length - 1) * xStep},${h - pad}`,
   ].join(" ");
-
   return (
     <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: 80, overflow: "visible" }}>
       <defs>
@@ -1017,54 +1013,34 @@ function MiniLineChart() {
           <stop offset="100%" stopColor="var(--brand)" stopOpacity="0" />
         </linearGradient>
       </defs>
-      {/* Area fill */}
       <polygon points={areaPoints} fill="url(#lineGrad)" />
-      {/* Line */}
-      <polyline
-        points={points}
-        fill="none"
-        stroke="var(--brand)"
-        strokeWidth="2.2"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-      {/* Dots */}
+      <polyline points={points} fill="none" stroke="var(--brand)" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
       {revenueData.map((v, i) => {
         const x = pad + i * xStep;
         const y = pad + (1 - v / max) * (h - pad * 2);
-        return (
-          <circle key={i} cx={x} cy={y} r="3.5" fill="var(--brand)" stroke="var(--surface)" strokeWidth="2" />
-        );
+        return <circle key={i} cx={x} cy={y} r="3.5" fill="var(--brand)" stroke="var(--surface)" strokeWidth="2" />;
       })}
     </svg>
   );
 }
 
-// ── Simple bar chart ──
 function MiniBarChart() {
   const max = Math.max(...revenueData);
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 80 }}>
       {revenueData.map((v, i) => (
         <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, height: "100%" }}>
-          <div style={{
-            flex: 1,
-            width: "100%",
-            display: "flex",
-            alignItems: "flex-end",
-          }}>
-            <div
-              style={{
-                width: "100%",
-                height: `${(v / max) * 100}%`,
-                background: i === revenueData.length - 1 ? "var(--brand)" : "var(--brand-light)",
-                borderRadius: "4px 4px 0 0",
-                minHeight: 6,
-                transition: "height 0.4s ease",
-                border: "1px solid",
-                borderColor: i === revenueData.length - 1 ? "var(--brand)" : "var(--border)",
-              }}
-            />
+          <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "flex-end" }}>
+            <div style={{
+              width: "100%",
+              height: `${(v / max) * 100}%`,
+              background: i === revenueData.length - 1 ? "var(--brand)" : "var(--brand-light)",
+              borderRadius: "4px 4px 0 0",
+              minHeight: 6,
+              transition: "height 0.4s ease",
+              border: "1px solid",
+              borderColor: i === revenueData.length - 1 ? "var(--brand)" : "var(--border)",
+            }} />
           </div>
         </div>
       ))}
@@ -1077,6 +1053,14 @@ export default function DashboardPage() {
 
   return (
     <div className="page-stack">
+
+      {/* ── Hero ── */}
+      <section className="page-hero">
+        <div>
+          <h2>{t("dashboardTitle")}</h2>
+          <p>{t("dashboardSubtitle")}</p>
+        </div>
+      </section>
 
       {/* ── KPI Cards ── */}
       <section className="kpi-grid">
@@ -1102,13 +1086,10 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ── Dashboard overview: table + right panel ── */}
+      {/* ── Dashboard overview ── */}
       <section className="dashboard-grid">
-
-        {/* Left column */}
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-          {/* Upcoming bookings table */}
           <div className="section-card">
             <div className="panel-title-row">
               <h3 className="panel-title">{t("upcomingBookings")}</h3>
@@ -1150,15 +1131,12 @@ export default function DashboardPage() {
             </table>
           </div>
 
-          {/* Monthly Revenue chart */}
           <div className="section-card">
             <div className="panel-title-row">
               <h3 className="panel-title">{t("monthlyRevenue")}</h3>
               <span style={{ fontSize: 12, color: "var(--muted)", fontWeight: 500 }}>{t("lastSixMonths")}</span>
             </div>
-
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-              {/* Line chart */}
               <div>
                 <p style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
                   {t("accumulatedTrend")}
@@ -1170,8 +1148,6 @@ export default function DashboardPage() {
                   ))}
                 </div>
               </div>
-
-              {/* Bar chart */}
               <div>
                 <p style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
                   {t("byService")}
@@ -1189,48 +1165,28 @@ export default function DashboardPage() {
 
         {/* Right panel */}
         <div className="info-stack">
-
-          {/* Next booking */}
           <div className="info-box">
             <p className="info-box__eyebrow">{t("nextBooking")}</p>
             <p className="info-box__title">María López</p>
             <p className="info-box__text">09:00 · Peluquería Nova</p>
             <div style={{ marginTop: 12 }}>
-              <span style={{
-                fontSize: 11.5,
-                fontWeight: 700,
-                color: "var(--brand)",
-                background: "var(--brand-soft)",
-                padding: "3px 10px",
-                borderRadius: 999,
-              }}>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: "var(--brand)", background: "var(--brand-soft)", padding: "3px 10px", borderRadius: 999 }}>
                 En 30 min
               </span>
             </div>
           </div>
 
-          {/* Featured business */}
           <div className="info-box">
             <p className="info-box__eyebrow">{t("featuredBusiness")}</p>
             <p className="info-box__title">{t("featuredBusinessValue")}</p>
             <p className="info-box__text">{t("featuredBusinessMeta")}</p>
-            <div style={{
-              marginTop: 12,
-              display: "flex",
-              gap: 4,
-            }}>
+            <div style={{ marginTop: 12, display: "flex", gap: 4 }}>
               {["—", "—", "—"].map((_, i) => (
-                <div key={i} style={{
-                  height: 3,
-                  flex: 1,
-                  borderRadius: 99,
-                  background: i < 2 ? "var(--brand)" : "var(--border)",
-                }} />
+                <div key={i} style={{ height: 3, flex: 1, borderRadius: 99, background: i < 2 ? "var(--brand)" : "var(--border)" }} />
               ))}
             </div>
           </div>
 
-          {/* Reminders */}
           <div className="info-box">
             <p className="info-box__eyebrow" style={{ color: "var(--brand)", marginBottom: 10 }}>{t("reminders")}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -1249,14 +1205,13 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Recent activity */}
           <div className="info-box">
             <p className="info-box__eyebrow">{t("recentActivity")}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
               {[
-                { label: "Nueva reserva creada",      time: "Hace 5 min",  dot: "var(--brand)" },
-                { label: "Pago recibido · 120€",       time: "Hace 18 min", dot: "#3b82f6"       },
-                { label: "Cliente nuevo registrado",   time: "Hace 1 h",    dot: "#8b5cf6"       },
+                { label: "Nueva reserva creada",     time: "Hace 5 min",  dot: "var(--brand)" },
+                { label: "Pago recibido · 120€",     time: "Hace 18 min", dot: "#3b82f6"      },
+                { label: "Cliente nuevo registrado", time: "Hace 1 h",    dot: "#8b5cf6"      },
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                   <div style={{ width: 7, height: 7, borderRadius: "50%", background: item.dot, marginTop: 5, flexShrink: 0 }} />
@@ -2835,6 +2790,894 @@ export default function CalendarClient({
 }
 </file>
 
+<file path="app/(admin)/businesses/BusinessesClient.tsx">
+"use client";
+
+import { useState } from "react";
+import type { Business, BusinessService, CreateBusinessDto, UpdateBusinessDto } from "@/lib/api";
+import { createBusiness, updateBusiness, deleteBusiness } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
+import { getTokenPayload } from "@/lib/auth";
+
+const emptyService = (): BusinessService => ({ name: "", price: 0 });
+
+const emptyCreateForm = (): CreateBusinessDto => ({
+  name: "",
+  email: "",
+  phone: "",
+  address: "",
+  zipcode: "",
+  maxCustomers: 0,
+  services: [emptyService()],
+});
+
+export default function BusinessesClient({ initialBusinesses }: { initialBusinesses: Business[] }) {
+  const { t } = useI18n();
+  const [businesses, setBusinesses] = useState<Business[]>(initialBusinesses);
+  const [search, setSearch] = useState("");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateBusinessDto>(emptyCreateForm());
+  const [loadingCreate, setLoadingCreate] = useState(false);
+  const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
+  const [editForm, setEditForm] = useState<UpdateBusinessDto>({});
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const filteredBusinesses = businesses.filter((b) =>
+    b.name.toLowerCase().includes(search.toLowerCase()) ||
+    b.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  function openCreateForm() {
+    setIsCreateOpen(true);
+    setEditingBusiness(null);
+    setDeleteTargetId(null);
+    setErrorMessage("");
+    setSuccessMessage("");
+    setCreateForm(emptyCreateForm());
+  }
+
+  function closeCreateForm() {
+    setIsCreateOpen(false);
+    setCreateForm(emptyCreateForm());
+    setErrorMessage("");
+  }
+
+  function openEditForm(business: Business) {
+    setEditingBusiness(business);
+    setEditForm({
+      name: business.name,
+      email: business.email,
+      phone: business.phone,
+      services: business.services?.map((s) => ({ ...s })) ?? [emptyService()],
+    });
+    setIsCreateOpen(false);
+    setDeleteTargetId(null);
+    setErrorMessage("");
+    setSuccessMessage("");
+  }
+
+  function closeEditForm() {
+    setEditingBusiness(null);
+    setEditForm({});
+    setErrorMessage("");
+  }
+
+  async function handleCreateSubmit(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+  // Validación: todos los servicios deben tener nombre
+  if (createForm.services.some((s) => !s.name.trim())) {
+    setErrorMessage(t("serviceNameRequired"));
+    return;
+  }
+  setLoadingCreate(true);
+  setErrorMessage("");
+  setSuccessMessage("");
+  try {
+    const payload = getTokenPayload();       // 👈 lee el token
+    if (!payload) {
+      setErrorMessage("No hay sesión activa");
+      return;
+    }
+    const created = await createBusiness({ ...createForm, email: payload.email }); // 👈 añade el email
+    setBusinesses((prev) => [created, ...prev]);
+    setIsCreateOpen(false);
+    setCreateForm(emptyCreateForm());
+    setSuccessMessage(t("businessCreated"));
+  } catch {
+    setErrorMessage(t("businessCreateError"));
+  } finally {
+    setLoadingCreate(false);
+  }
+}
+
+
+  async function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingBusiness) return;
+    setLoadingEdit(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      const updated = await updateBusiness(editingBusiness.id, editForm);
+      setBusinesses((prev) => prev.map((b) => b.id === editingBusiness.id ? updated : b));
+      setEditingBusiness(null);
+      setEditForm({});
+      setSuccessMessage(t("businessUpdated"));
+    } catch {
+      setErrorMessage(t("businessUpdateError"));
+    } finally {
+      setLoadingEdit(false);
+    }
+  }
+
+  async function confirmDelete() {
+    if (deleteTargetId === null) return;
+    setLoadingDelete(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      await deleteBusiness(deleteTargetId);
+      setBusinesses((prev) => prev.filter((b) => b.id !== deleteTargetId));
+      if (editingBusiness?.id === deleteTargetId) closeEditForm();
+      setDeleteTargetId(null);
+      setSuccessMessage(t("businessDeleted"));
+    } catch {
+      setErrorMessage(t("businessDeleteError"));
+    } finally {
+      setLoadingDelete(false);
+    }
+  }
+
+  return (
+    <div className="page-stack">
+      <section className="page-hero">
+        <div>
+          <h2>{t("businessesTitle")}</h2>
+          <p>{t("businessesSubtitle")}</p>
+        </div>
+        <button className="primary-btn" type="button" onClick={openCreateForm}>
+          {t("newBusiness")}
+        </button>
+      </section>
+
+      {isCreateOpen && (
+        <section className="section-card">
+          <div className="panel-title-row">
+            <h3 className="panel-title">{t("createBusinessTitle")}</h3>
+            <button type="button" className="secondary-btn" onClick={closeCreateForm}>{t("cancelBtn")}</button>
+          </div>
+          <form onSubmit={handleCreateSubmit} className="page-stack" style={{ gap: 16 }}>
+            <div className="form-grid">
+              <input className="input" type="text" placeholder={t("colBusinessName")}
+                value={createForm.name} onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))} required />
+              <input className="input" type="tel" placeholder={t("colPhone")}
+                value={createForm.phone} onChange={(e) => setCreateForm((p) => ({ ...p, phone: e.target.value }))} required />
+              <input className="input" type="text" placeholder="Dirección"
+                value={createForm.address} onChange={(e) => setCreateForm((p) => ({ ...p, address: e.target.value }))} required />
+              <input className="input" type="text" placeholder="Código postal"
+                value={createForm.zipcode} onChange={(e) => setCreateForm((p) => ({ ...p, zipcode: e.target.value }))} required />
+              <input className="input" type="number" placeholder="Máximo clientes"
+                value={createForm.maxCustomers} onChange={(e) => setCreateForm((p) => ({ ...p, maxCustomers: parseInt(e.target.value) || 0 }))} required />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontWeight: 600, fontSize: 14 }}>Servicios</span>
+                <button type="button" className="secondary-btn" style={{ fontSize: 13, padding: "4px 12px" }}
+                  onClick={() => setCreateForm((p) => ({ ...p, services: [...p.services, emptyService()] }))}>
+                  + Añadir servicio
+                </button>
+              </div>
+              {createForm.services.map((s, i) => (
+                <div key={i} style={{ display: "flex", gap: 8 }}>
+                  <input className="input" type="text" placeholder="Nombre servicio" value={s.name}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, services: p.services.map((sv, idx) => idx === i ? { ...sv, name: e.target.value } : sv) }))} required style={{ flex: 2 }} />
+                  <input className="input" type="number" placeholder="Precio €" value={s.price}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, services: p.services.map((sv, idx) => idx === i ? { ...sv, price: parseFloat(e.target.value) || 0 } : sv) }))} required style={{ flex: 1 }} />
+                  <button type="button" className="danger-btn" style={{ padding: "4px 10px" }}
+                    onClick={() => setCreateForm((p) => ({ ...p, services: p.services.filter((_, idx) => idx !== i) }))}
+                    disabled={createForm.services.length === 1}>X</button>
+                </div>
+              ))}
+            </div>
+            {errorMessage && <div className="message-error">{errorMessage}</div>}
+            <div className="message-row">
+              <button className="primary-btn" type="submit" disabled={loadingCreate}>
+                {loadingCreate ? t("savingBtn") : t("createBusinessBtn")}
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
+
+      {editingBusiness && (
+        <section className="section-card">
+          <div className="panel-title-row">
+            <h3 className="panel-title">{t("editBusinessTitle")} #{editingBusiness.id}</h3>
+            <button type="button" className="secondary-btn" onClick={closeEditForm}>{t("cancelBtn")}</button>
+          </div>
+          <form onSubmit={handleEditSubmit} className="page-stack" style={{ gap: 16 }}>
+            <div className="form-grid">
+              <input className="input" type="text" placeholder={t("colBusinessName")} value={editForm.name ?? ""}
+                onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))} required />
+              <input className="input" type="email" placeholder={t("colEmail")} value={editForm.email ?? ""}
+                onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))} required />
+              <input className="input" type="tel" placeholder={t("colPhone")} value={editForm.phone ?? ""}
+                onChange={(e) => setEditForm((p) => ({ ...p, phone: e.target.value }))} required />
+            </div>
+            {errorMessage && <div className="message-error">{errorMessage}</div>}
+            <div className="message-row" style={{ display: "flex", gap: 12 }}>
+              <button className="primary-btn" type="submit" disabled={loadingEdit}>
+                {loadingEdit ? t("savingBtn") : t("saveBtn")}
+              </button>
+              <button type="button" className="danger-btn" onClick={() => setDeleteTargetId(editingBusiness.id)} disabled={loadingDelete}>
+                {t("deleteBtn")}
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
+
+      {deleteTargetId !== null && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true"
+          onClick={(e) => { if (e.target === e.currentTarget) setDeleteTargetId(null); }}>
+          <div className="modal-card">
+            <div className="modal-icon">!</div>
+            <h3 className="modal-title">{t("deleteBusinessTitle")}</h3>
+            <p className="modal-text">{t("deleteBusinessText")} #{deleteTargetId}</p>
+            <div className="modal-actions">
+              <button type="button" className="secondary-btn" onClick={() => setDeleteTargetId(null)}>{t("cancelBtn")}</button>
+              <button type="button" className="danger-btn" onClick={confirmDelete} disabled={loadingDelete}>
+                {loadingDelete ? t("deletingBtn") : t("deleteBtn")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <section className="section-card">
+        <div className="search-row">
+          <input className="input" placeholder={t("searchBusiness")} value={search}
+            onChange={(e) => setSearch(e.target.value)} />
+        </div>
+      </section>
+
+      {successMessage && <div className="message-success">{successMessage}</div>}
+
+      <section className="section-card">
+        <div className="panel-title-row">
+          <h3 className="panel-title">{t("businessesRegistered")}</h3>
+          <span style={{ color: "var(--muted)", fontSize: 14 }}>{filteredBusinesses.length} {t("businessesRegistered").toLowerCase()}</span>
+        </div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>{t("colId")}</th>
+              <th>{t("colBusinessName")}</th>
+              <th>{t("colEmail")}</th>
+              <th>{t("colPhone")}</th>
+              <th>Servicios</th>
+              <th>{t("colActions")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredBusinesses.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: 24 }}>{t("noBusinesses")}</td>
+              </tr>
+            ) : (
+              filteredBusinesses.map((business) => (
+                <tr key={business.id}>
+                  <td style={{ fontWeight: 600 }}>{business.id}</td>
+                  <td style={{ fontWeight: 600 }}>{business.name}</td>
+                  <td>{business.email}</td>
+                  <td>{business.phone}</td>
+                  <td>
+                    {(business.services ?? []).map((s, i) => (
+                      <span key={i} style={{ display: "block", fontSize: 13 }}>{s.name} - {s.price}€</span>
+                    ))}
+                  </td>
+                  <td>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button type="button" className="secondary-btn" onClick={() => openEditForm(business)}>{t("editBtn")}</button>
+                      <button type="button" className="danger-btn" onClick={() => setDeleteTargetId(business.id)}>{t("deleteBtn")}</button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </section>
+    </div>
+  );
+}
+</file>
+
+<file path="app/(admin)/customers/CustomersClient.tsx">
+"use client";
+
+import { useState, useEffect } from "react";
+import type { Customer, CreateCustomerDto, UpdateCustomerDto, BusinessOption } from "@/lib/api";
+import { createCustomer, updateCustomer, deleteCustomer, getBusinessOptions } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
+
+export default function CustomersClient({ initialCustomers }: { initialCustomers: Customer[] }) {
+  const { t } = useI18n();
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+  const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
+  const [search, setSearch] = useState("");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [createForm, setCreateForm] = useState<CreateCustomerDto>({ name: "", email: "", phone: "", businessId: 0 });
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [editForm, setEditForm] = useState<UpdateCustomerDto>({ name: "", email: "", phone: "", businessId: 0 });
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [phoneCreateError, setPhoneCreateError] = useState("");
+  const [phoneEditError, setPhoneEditError] = useState("");
+
+  const filteredCustomers = customers.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.email.toLowerCase().includes(search.toLowerCase()) ||
+    c.phone.includes(search)
+  );
+
+  // Carga clientes con próxima cita y lista de negocios en paralelo
+  useEffect(() => {
+    async function fetchData() {
+      const [customersRes, businessOptions] = await Promise.all([
+        fetch("/api/customers/with-next-appointment").then((r) => r.json() as Promise<Customer[]>),
+        getBusinessOptions(),
+      ]);
+      setCustomers(customersRes);
+      setBusinesses(businessOptions);
+
+      // Inicializar businessId del formulario de creación al primer negocio disponible
+      if (businessOptions.length > 0) {
+        setCreateForm((p) => ({ ...p, businessId: businessOptions[0].id }));
+      }
+    }
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function validatePhone(value: string): string {
+    if (/[a-zA-Z]/.test(value)) return t("phoneError1");
+    const digits = value.replace(/[\s\+\-]/g, "").length;
+    if (digits < 9) return t("phoneError2");
+    if (digits > 15) return t("phoneError3");
+    return "";
+  }
+
+  async function handleCreateSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const phoneError = validatePhone(createForm.phone);
+    if (phoneError) { setPhoneCreateError(phoneError); return; }
+    setLoading(true); setErrorMessage(""); setSuccessMessage("");
+    try {
+      const created = await createCustomer(createForm);
+      setCustomers((prev) => [created, ...prev]);
+      setIsCreateOpen(false);
+      setCreateForm({ name: "", email: "", phone: "", businessId: businesses[0]?.id ?? 0 });
+      setSuccessMessage(t("customerCreated"));
+    } catch { setErrorMessage(t("customerCreateError")); }
+    finally { setLoading(false); }
+  }
+
+  function openEditForm(customer: Customer) {
+    setEditingCustomer(customer);
+    setEditForm({ name: customer.name, email: customer.email, phone: customer.phone, businessId: customer.businessId });
+    setErrorMessage(""); setSuccessMessage(""); setIsCreateOpen(false); setDeleteTargetId(null);
+  }
+
+  async function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingCustomer) return;
+    const phoneError = validatePhone(editForm.phone ?? "");
+    if (phoneError) { setPhoneEditError(phoneError); return; }
+    setLoadingEdit(true); setErrorMessage(""); setSuccessMessage("");
+    try {
+      const updated = await updateCustomer(editingCustomer.id, editForm);
+      setCustomers((prev) => prev.map((c) => c.id === editingCustomer.id ? updated : c));
+      setEditingCustomer(null);
+      setSuccessMessage(t("customerUpdated"));
+    } catch { setErrorMessage(t("customerUpdateError")); }
+    finally { setLoadingEdit(false); }
+  }
+
+  async function confirmDelete() {
+    if (deleteTargetId === null) return;
+    setLoadingDelete(true); setErrorMessage(""); setSuccessMessage("");
+    try {
+      await deleteCustomer(deleteTargetId);
+      setCustomers((prev) => prev.filter((c) => c.id !== deleteTargetId));
+      setDeleteTargetId(null); setEditingCustomer(null);
+      setSuccessMessage(t("customerDeleted"));
+    } catch { setErrorMessage(t("customerDeleteError")); }
+    finally { setLoadingDelete(false); }
+  }
+
+  // ─── Selector de negocio reutilizable ────────────────────────────────────────
+
+  function BusinessSelect({
+    value,
+    onChange,
+  }: {
+    value: number;
+    onChange: (id: number) => void;
+  }) {
+    if (businesses.length === 0) {
+      return (
+        <input
+          className="input"
+          type="text"
+          disabled
+          placeholder={t("loadingBusinesses")}
+          style={{ opacity: 0.6 }}
+        />
+      );
+    }
+    return (
+      <select
+        className="input"
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        required
+      >
+        <option value={0} disabled>
+          {t("selectBusiness")}
+        </option>
+        {businesses.map((b) => (
+          <option key={b.id} value={b.id}>
+            {b.name}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  return (
+    <div className="page-stack">
+      <section className="page-hero">
+        <div>
+          <h2>{t("customersTitle")}</h2>
+          <p>{t("customersSubtitle")}</p>
+        </div>
+        <button className="primary-btn" type="button" onClick={() => setIsCreateOpen(true)}>{t("newCustomer")}</button>
+      </section>
+
+      {isCreateOpen && (
+        <section className="section-card">
+          <div className="panel-title-row">
+            <h3 className="panel-title">{t("newCustomerTitle")}</h3>
+            <button type="button" className="secondary-btn" onClick={() => setIsCreateOpen(false)}>{t("cancelBtn")}</button>
+          </div>
+          <form onSubmit={handleCreateSubmit} className="page-stack" style={{ gap: 16 }}>
+            <div className="form-grid">
+              <input className="input" type="text" placeholder={t("colName")} value={createForm.name}
+                onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))} required />
+              <input className="input" type="email" placeholder={t("colEmail")} value={createForm.email}
+                onChange={(e) => setCreateForm((p) => ({ ...p, email: e.target.value }))} required />
+              <div>
+                <input className="input" type="tel" placeholder={t("colPhone")} value={createForm.phone}
+                  onChange={(e) => { setCreateForm((p) => ({ ...p, phone: e.target.value })); setPhoneCreateError(validatePhone(e.target.value)); }} required />
+                {phoneCreateError && <p style={{ color: "red", fontSize: 12, marginTop: 4 }}>{phoneCreateError}</p>}
+              </div>
+              {/* Selector real de negocio — reemplaza el input numérico anterior */}
+              <BusinessSelect
+                value={createForm.businessId}
+                onChange={(id) => setCreateForm((p) => ({ ...p, businessId: id }))}
+              />
+            </div>
+            {errorMessage && <div className="message-error">{errorMessage}</div>}
+            <div className="message-row">
+              <button className="primary-btn" type="submit" disabled={loading}>
+                {loading ? t("savingBtn") : t("createCustomerBtn")}
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
+
+      {editingCustomer && (
+        <section className="section-card">
+          <div className="panel-title-row">
+            <h3 className="panel-title">{t("editCustomerTitle")} #{editingCustomer.id}</h3>
+            <button type="button" className="secondary-btn" onClick={() => setEditingCustomer(null)}>{t("cancelBtn")}</button>
+          </div>
+          <form onSubmit={handleEditSubmit} className="page-stack" style={{ gap: 16 }}>
+            <div className="form-grid">
+              <input className="input" type="text" placeholder={t("colName")} value={editForm.name}
+                onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))} required />
+              <input className="input" type="email" placeholder={t("colEmail")} value={editForm.email}
+                onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))} required />
+              <div>
+                <input className="input" type="tel" placeholder={t("colPhone")} value={editForm.phone}
+                  onChange={(e) => { setEditForm((p) => ({ ...p, phone: e.target.value })); setPhoneEditError(validatePhone(e.target.value)); }} required />
+                {phoneEditError && <p style={{ color: "red", fontSize: 12, marginTop: 4 }}>{phoneEditError}</p>}
+              </div>
+              {/* Selector real de negocio — reemplaza el input numérico anterior */}
+              <BusinessSelect
+                value={editForm.businessId ?? 0}
+                onChange={(id) => setEditForm((p) => ({ ...p, businessId: id }))}
+              />
+            </div>
+            {errorMessage && <div className="message-error">{errorMessage}</div>}
+            <div className="message-row" style={{ display: "flex", gap: 12 }}>
+              <button className="primary-btn" type="submit" disabled={loadingEdit}>
+                {loadingEdit ? t("savingBtn") : t("saveBtn")}
+              </button>
+              <button type="button" className="danger-btn" onClick={() => setDeleteTargetId(editingCustomer.id)} disabled={loadingDelete}>
+                {t("deleteBtn")}
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
+
+      {deleteTargetId !== null && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true"
+          onClick={(e) => { if (e.target === e.currentTarget) setDeleteTargetId(null); }}>
+          <div className="modal-card">
+            <div className="modal-icon">!</div>
+            <h3 className="modal-title">{t("deleteCustomerTitle")}</h3>
+            <p className="modal-text">{t("deleteCustomerText")}</p>
+            <div className="modal-actions">
+              <button type="button" className="secondary-btn" onClick={() => setDeleteTargetId(null)}>{t("cancelBtn")}</button>
+              <button type="button" className="danger-btn" onClick={confirmDelete} disabled={loadingDelete}>
+                {loadingDelete ? t("deletingBtn") : t("deleteBtn")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <section className="section-card">
+        <div className="search-row">
+          <input className="input" placeholder={t("searchCustomer")} value={search}
+            onChange={(e) => setSearch(e.target.value)} />
+        </div>
+      </section>
+
+      {successMessage && <div className="message-success">{successMessage}</div>}
+
+      <section className="customer-grid">
+        {filteredCustomers.length === 0 ? (
+          <p>{t("noCustomers")}</p>
+        ) : (
+          filteredCustomers.map((customer) => (
+            <div key={customer.id} className="customer-card" style={{ position: "relative" }}>
+              <p className="customer-name">{customer.name}</p>
+              <p className="customer-meta">{customer.phone}</p>
+              <p className="customer-meta">{customer.email}</p>
+              {/* Muestra el nombre del negocio si está disponible */}
+              {customer.businessId > 0 && (
+                <p className="customer-meta" style={{ fontSize: 12, color: "var(--muted)" }}>
+                  {businesses.find((b) => b.id === customer.businessId)?.name ?? `#${customer.businessId}`}
+                </p>
+              )}
+              <div className="customer-tag">Siguiente reserva:{" "}
+                {customer.nextAppointment
+                  ? new Date(customer.nextAppointment).toLocaleDateString()
+                  : "Sin citas"}
+              </div>
+              <button type="button" onClick={() => openEditForm(customer)}
+                style={{ position: "absolute", bottom: 12, right: 12, background: "none", border: "none", cursor: "pointer", fontSize: 18, opacity: 0.5 }}
+                title={t("editBtn")}>
+                ✏️
+              </button>
+            </div>
+          ))
+        )}
+      </section>
+    </div>
+  );
+}
+</file>
+
+<file path="app/layout.tsx">
+import type { Metadata } from "next";
+import "./globals.css";
+import { I18nProvider } from "@/lib/i18n";
+
+export const metadata: Metadata = {
+  title: "Bookings Admin",
+  description: "Plataforma de gestión de reservas y cobros",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="es">
+      <body>
+        <I18nProvider>
+          {children}
+        </I18nProvider>
+      </body>
+    </html>
+  );
+}
+</file>
+
+<file path="components/layout/Sidebar.tsx">
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useI18n } from "@/lib/i18n";
+
+const Icons = {
+  dashboard: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="1" width="7" height="7" rx="1.5" />
+      <rect x="10" y="1" width="7" height="7" rx="1.5" />
+      <rect x="1" y="10" width="7" height="7" rx="1.5" />
+      <rect x="10" y="10" width="7" height="7" rx="1.5" />
+    </svg>
+  ),
+  bookings: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="14" height="13" rx="2" />
+      <path d="M6 1v4M12 1v4M2 8h14" />
+    </svg>
+  ),
+  customers: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="6" r="3.5" />
+      <path d="M1.5 16c0-3.314 3.358-6 7.5-6s7.5 2.686 7.5 6" />
+    </svg>
+  ),
+  payments: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="4" width="16" height="11" rx="2" />
+      <path d="M1 8h16M5 12h2M9 12h4" />
+    </svg>
+  ),
+  businesses: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 17V8l6-6 6 6v9" />
+      <rect x="6" y="11" width="6" height="6" rx="1" />
+    </svg>
+  ),
+  settings: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="9" r="2.5" />
+      <path d="M9 1v2M9 15v2M1 9h2M15 9h2M3.22 3.22l1.42 1.42M13.36 13.36l1.42 1.42M3.22 14.78l1.42-1.42M13.36 4.64l1.42-1.42" />
+    </svg>
+  ),
+  chevron: (
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 4l4 4 4-4" />
+    </svg>
+  ),
+  profile: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="6" r="3.5" />
+      <path d="M1.5 16c0-3.314 3.358-6 7.5-6s7.5 2.686 7.5 6" />
+    </svg>
+  ),
+  workspace: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="14" height="14" rx="2" />
+      <path d="M2 7h14" />
+    </svg>
+  ),
+  bell: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 1a5 5 0 0 1 5 5c0 5 1.5 6 1.5 6h-13S3 11 3 6a5 5 0 0 1 5-5z" />
+      <path d="M7 14a2 2 0 0 0 4 0" />
+    </svg>
+  ),
+  logout: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 2H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h4" />
+      <path d="M12 13l4-4-4-4" />
+      <path d="M16 9H7" />
+    </svg>
+  ),
+};
+
+export default function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { t } = useI18n();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const mainItems = [
+    { label: t("navDashboard"),  href: "/dashboard",  icon: Icons.dashboard  },
+    { label: t("navBookings"),   href: "/bookings",   icon: Icons.bookings   },
+    { label: t("navCustomers"),  href: "/customers",  icon: Icons.customers  },
+    { label: t("navPayments"),   href: "/payments",   icon: Icons.payments   },
+    { label: t("navBusinesses"), href: "/businesses", icon: Icons.businesses },
+  ];
+
+  const settingsSubItems = [
+    { label: t("settingsProfile"),       href: "/settings/profile",       icon: Icons.profile   },
+    { label: t("settingsWorkspace"),     href: "/settings/workspace",     icon: Icons.workspace },
+    { label: t("settingsNotifications"), href: "/settings/notifications", icon: Icons.bell      },
+  ];
+
+  const isSettingsActive = pathname.startsWith("/settings");
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    router.replace("/login");
+  }
+
+  return (
+    <>
+      <aside className="admin-sidebar">
+        {/* Brand */}
+        <div className="admin-sidebar__brand">
+          <div className="admin-sidebar__logo" aria-hidden="true">
+            <div className="admin-sidebar__logo-inner" />
+          </div>
+          <span className="admin-sidebar__title">BookFlow</span>
+        </div>
+
+        {/* Main nav */}
+        <p className="admin-sidebar__section-label">{t("sectionMain")}</p>
+        <nav className="admin-sidebar__nav">
+          {mainItems.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`admin-sidebar__link${isActive ? " admin-sidebar__link--active" : ""}`}
+              >
+                <span className="sidebar-icon">{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Bottom section */}
+        <p className="admin-sidebar__section-label" style={{ marginTop: 24 }}>{t("sectionSystem")}</p>
+        <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+
+          {/* Settings toggle */}
+          <button
+            type="button"
+            onClick={() => setSettingsOpen((o) => !o)}
+            className={`admin-sidebar__link${isSettingsActive ? " admin-sidebar__link--active" : ""}`}
+            style={{
+              width: "100%",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              textAlign: "left",
+              justifyContent: "space-between",
+            }}
+          >
+            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span className="sidebar-icon">{Icons.settings}</span>
+              <span>{t("navSettings")}</span>
+            </span>
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                opacity: 0.5,
+                transition: "transform 0.2s ease",
+                transform: settingsOpen ? "rotate(180deg)" : "rotate(0deg)",
+                width: 14,
+                height: 14,
+              }}
+            >
+              {Icons.chevron}
+            </span>
+          </button>
+
+          {/* Settings sub-panel */}
+          {settingsOpen && (
+            <div
+              style={{
+                margin: "2px 0 4px 16px",
+                padding: "6px 8px",
+                background: "var(--surface-2, color-mix(in srgb, var(--surface) 60%, var(--border)))",
+                borderRadius: 8,
+                border: "1px solid var(--border)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
+              }}
+            >
+              {settingsSubItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`admin-sidebar__link${isActive ? " admin-sidebar__link--active" : ""}`}
+                    style={{ fontSize: 12.5, padding: "6px 10px", gap: 8 }}
+                  >
+                    <span className="sidebar-icon" style={{ width: 14, height: 14 }}>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+
+              {/* Divider */}
+              <div style={{ height: 1, background: "var(--border)", margin: "4px 2px" }} />
+
+              {/* Logout button */}
+              <button
+                type="button"
+                onClick={() => setShowLogoutConfirm(true)}
+                className="admin-sidebar__link"
+                style={{
+                  fontSize: 12.5,
+                  padding: "6px 10px",
+                  gap: 8,
+                  width: "100%",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  color: "var(--danger, #e53e3e)",
+                }}
+              >
+                <span className="sidebar-icon" style={{ width: 14, height: 14, color: "var(--danger, #e53e3e)" }}>
+                  {Icons.logout}
+                </span>
+                <span>{t("logoutLabel")}</span>
+              </button>
+            </div>
+          )}
+        </nav>
+
+        {/* User footer */}
+        <div className="admin-sidebar__footer">
+          <div className="admin-sidebar__user">
+            <div className="admin-sidebar__avatar">A</div>
+            <div className="admin-sidebar__user-info">
+              <p className="admin-sidebar__user-name">Admin</p>
+              <p className="admin-sidebar__user-role">workspace</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Logout confirm modal */}
+      {showLogoutConfirm && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-icon">🚪</div>
+            <p className="modal-title">{t("logoutConfirmTitle")}</p>
+            <p className="modal-text">{t("logoutConfirmText")}</p>
+            <div className="modal-actions">
+              <button type="button" className="secondary-btn" onClick={() => setShowLogoutConfirm(false)}>
+                {t("logoutCancel")}
+              </button>
+              <button type="button" className="danger-btn" onClick={handleLogout}>
+                {t("logoutConfirm")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+</file>
+
 <file path="lib/i18n.tsx">
 "use client";
 
@@ -2854,7 +3697,7 @@ export const flags: Record<Locale, string> = {
 export const translations: Record<Locale, Record<string, string>> = {
     es: {
         // General
-        appTitle: "Bookings Admin",
+        appTitle: "BookFlow",
         appSubtitle: "Plataforma de gestión de reservas y cobros",
         exportReport: "Exportar informe",
         // Dashboard
@@ -2888,8 +3731,8 @@ export const translations: Record<Locale, Record<string, string>> = {
         accumulatedTrend: "Tendencia acumulada",
         byService: "Por servicio",
         // Bookings
-        bookingsTitle: "Bookings list",
-        bookingsSubtitle: "Gestión de reservas conectada con la API.",
+        bookingsTitle: "Gestionar reservas",
+        bookingsSubtitle: "Gestionar las reservas que hacen los clientes con los negocios.",
         newBooking: "Nueva reserva",
         registeredBookings: "Reservas registradas",
         filterAll: "Todas",
@@ -2930,7 +3773,7 @@ export const translations: Record<Locale, Record<string, string>> = {
         bookingDeleteError: "No se pudo eliminar la reserva.",
         createBookingBtn: "Crear reserva",
         // Customers
-        customersTitle: "Customer directory",
+        customersTitle: "Gestionar clientes",
         customersSubtitle: "Gestión visual de clientes y próximas reservas.",
         newCustomer: "Nuevo cliente",
         searchCustomer: "Buscar cliente...",
@@ -2953,7 +3796,7 @@ export const translations: Record<Locale, Record<string, string>> = {
         phoneError2: "Introduce un número de teléfono válido (Mínimo 9 dígitos)",
         phoneError3: "Introduce un número de teléfono válido (Demasiados dígitos)",
         // Payments
-        paymentsTitle: "Payments",
+        paymentsTitle: "Gestionar pagos",
         paymentsSubtitle: "Seguimiento de cobros realizados y pendientes.",
         registerPayment: "Registrar cobro",
         newPaymentTitle: "Nuevo cobro",
@@ -2981,7 +3824,7 @@ export const translations: Record<Locale, Record<string, string>> = {
         savePaymentBtn: "Guardar cambios",
         deletePaymentBtn: "Eliminar cobro",
         fillRequired: "Rellena todos los campos obligatorios.",
-        navDashboard: "Dashboard",
+        navDashboard: "Panel de control",
         navBookings: "Reservas",
         navCustomers: "Clientes",
         navPayments: "Pagos",
@@ -2998,7 +3841,7 @@ export const translations: Record<Locale, Record<string, string>> = {
         logoutConfirm: "Salir",
         logoutCancel: "Cancelar",
         // Businesses
-        businessesTitle: "Negocios",
+        businessesTitle: "Gestionar negocios",
         businessesSubtitle: "Gestiona los negocios, sus servicios y precios.",
         newBusiness: "Nuevo negocio",
         searchBusiness: "Buscar por nombre, email o servicio...",
@@ -3888,894 +4731,6 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
 export function useI18n() {
     return useContext(I18nContext);
-}
-</file>
-
-<file path="app/(admin)/businesses/BusinessesClient.tsx">
-"use client";
-
-import { useState } from "react";
-import type { Business, BusinessService, CreateBusinessDto, UpdateBusinessDto } from "@/lib/api";
-import { createBusiness, updateBusiness, deleteBusiness } from "@/lib/api";
-import { useI18n } from "@/lib/i18n";
-import { getTokenPayload } from "@/lib/auth";
-
-const emptyService = (): BusinessService => ({ name: "", price: 0 });
-
-const emptyCreateForm = (): CreateBusinessDto => ({
-  name: "",
-  email: "",
-  phone: "",
-  address: "",
-  zipcode: "",
-  maxCustomers: 0,
-  services: [emptyService()],
-});
-
-export default function BusinessesClient({ initialBusinesses }: { initialBusinesses: Business[] }) {
-  const { t } = useI18n();
-  const [businesses, setBusinesses] = useState<Business[]>(initialBusinesses);
-  const [search, setSearch] = useState("");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [createForm, setCreateForm] = useState<CreateBusinessDto>(emptyCreateForm());
-  const [loadingCreate, setLoadingCreate] = useState(false);
-  const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
-  const [editForm, setEditForm] = useState<UpdateBusinessDto>({});
-  const [loadingEdit, setLoadingEdit] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const filteredBusinesses = businesses.filter((b) =>
-    b.name.toLowerCase().includes(search.toLowerCase()) ||
-    b.email.toLowerCase().includes(search.toLowerCase())
-  );
-
-  function openCreateForm() {
-    setIsCreateOpen(true);
-    setEditingBusiness(null);
-    setDeleteTargetId(null);
-    setErrorMessage("");
-    setSuccessMessage("");
-    setCreateForm(emptyCreateForm());
-  }
-
-  function closeCreateForm() {
-    setIsCreateOpen(false);
-    setCreateForm(emptyCreateForm());
-    setErrorMessage("");
-  }
-
-  function openEditForm(business: Business) {
-    setEditingBusiness(business);
-    setEditForm({
-      name: business.name,
-      email: business.email,
-      phone: business.phone,
-      services: business.services?.map((s) => ({ ...s })) ?? [emptyService()],
-    });
-    setIsCreateOpen(false);
-    setDeleteTargetId(null);
-    setErrorMessage("");
-    setSuccessMessage("");
-  }
-
-  function closeEditForm() {
-    setEditingBusiness(null);
-    setEditForm({});
-    setErrorMessage("");
-  }
-
-  async function handleCreateSubmit(e: React.FormEvent<HTMLFormElement>) {
-  e.preventDefault();
-  // Validación: todos los servicios deben tener nombre
-  if (createForm.services.some((s) => !s.name.trim())) {
-    setErrorMessage(t("serviceNameRequired"));
-    return;
-  }
-  setLoadingCreate(true);
-  setErrorMessage("");
-  setSuccessMessage("");
-  try {
-    const payload = getTokenPayload();       // 👈 lee el token
-    if (!payload) {
-      setErrorMessage("No hay sesión activa");
-      return;
-    }
-    const created = await createBusiness({ ...createForm, email: payload.email }); // 👈 añade el email
-    setBusinesses((prev) => [created, ...prev]);
-    setIsCreateOpen(false);
-    setCreateForm(emptyCreateForm());
-    setSuccessMessage(t("businessCreated"));
-  } catch {
-    setErrorMessage(t("businessCreateError"));
-  } finally {
-    setLoadingCreate(false);
-  }
-}
-
-
-  async function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!editingBusiness) return;
-    setLoadingEdit(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-    try {
-      const updated = await updateBusiness(editingBusiness.id, editForm);
-      setBusinesses((prev) => prev.map((b) => b.id === editingBusiness.id ? updated : b));
-      setEditingBusiness(null);
-      setEditForm({});
-      setSuccessMessage(t("businessUpdated"));
-    } catch {
-      setErrorMessage(t("businessUpdateError"));
-    } finally {
-      setLoadingEdit(false);
-    }
-  }
-
-  async function confirmDelete() {
-    if (deleteTargetId === null) return;
-    setLoadingDelete(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-    try {
-      await deleteBusiness(deleteTargetId);
-      setBusinesses((prev) => prev.filter((b) => b.id !== deleteTargetId));
-      if (editingBusiness?.id === deleteTargetId) closeEditForm();
-      setDeleteTargetId(null);
-      setSuccessMessage(t("businessDeleted"));
-    } catch {
-      setErrorMessage(t("businessDeleteError"));
-    } finally {
-      setLoadingDelete(false);
-    }
-  }
-
-  return (
-    <div className="page-stack">
-      <section className="page-hero">
-        <div>
-          <h2>{t("businessesTitle")}</h2>
-          <p>{t("businessesSubtitle")}</p>
-        </div>
-        <button className="primary-btn" type="button" onClick={openCreateForm}>
-          {t("newBusiness")}
-        </button>
-      </section>
-
-      {isCreateOpen && (
-        <section className="section-card">
-          <div className="panel-title-row">
-            <h3 className="panel-title">{t("createBusinessTitle")}</h3>
-            <button type="button" className="secondary-btn" onClick={closeCreateForm}>{t("cancelBtn")}</button>
-          </div>
-          <form onSubmit={handleCreateSubmit} className="page-stack" style={{ gap: 16 }}>
-            <div className="form-grid">
-              <input className="input" type="text" placeholder={t("colBusinessName")}
-                value={createForm.name} onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))} required />
-              <input className="input" type="tel" placeholder={t("colPhone")}
-                value={createForm.phone} onChange={(e) => setCreateForm((p) => ({ ...p, phone: e.target.value }))} required />
-              <input className="input" type="text" placeholder="Dirección"
-                value={createForm.address} onChange={(e) => setCreateForm((p) => ({ ...p, address: e.target.value }))} required />
-              <input className="input" type="text" placeholder="Código postal"
-                value={createForm.zipcode} onChange={(e) => setCreateForm((p) => ({ ...p, zipcode: e.target.value }))} required />
-              <input className="input" type="number" placeholder="Máximo clientes"
-                value={createForm.maxCustomers} onChange={(e) => setCreateForm((p) => ({ ...p, maxCustomers: parseInt(e.target.value) || 0 }))} required />
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontWeight: 600, fontSize: 14 }}>Servicios</span>
-                <button type="button" className="secondary-btn" style={{ fontSize: 13, padding: "4px 12px" }}
-                  onClick={() => setCreateForm((p) => ({ ...p, services: [...p.services, emptyService()] }))}>
-                  + Añadir servicio
-                </button>
-              </div>
-              {createForm.services.map((s, i) => (
-                <div key={i} style={{ display: "flex", gap: 8 }}>
-                  <input className="input" type="text" placeholder="Nombre servicio" value={s.name}
-                    onChange={(e) => setCreateForm((p) => ({ ...p, services: p.services.map((sv, idx) => idx === i ? { ...sv, name: e.target.value } : sv) }))} required style={{ flex: 2 }} />
-                  <input className="input" type="number" placeholder="Precio €" value={s.price}
-                    onChange={(e) => setCreateForm((p) => ({ ...p, services: p.services.map((sv, idx) => idx === i ? { ...sv, price: parseFloat(e.target.value) || 0 } : sv) }))} required style={{ flex: 1 }} />
-                  <button type="button" className="danger-btn" style={{ padding: "4px 10px" }}
-                    onClick={() => setCreateForm((p) => ({ ...p, services: p.services.filter((_, idx) => idx !== i) }))}
-                    disabled={createForm.services.length === 1}>X</button>
-                </div>
-              ))}
-            </div>
-            {errorMessage && <div className="message-error">{errorMessage}</div>}
-            <div className="message-row">
-              <button className="primary-btn" type="submit" disabled={loadingCreate}>
-                {loadingCreate ? t("savingBtn") : t("createBusinessBtn")}
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
-
-      {editingBusiness && (
-        <section className="section-card">
-          <div className="panel-title-row">
-            <h3 className="panel-title">{t("editBusinessTitle")} #{editingBusiness.id}</h3>
-            <button type="button" className="secondary-btn" onClick={closeEditForm}>{t("cancelBtn")}</button>
-          </div>
-          <form onSubmit={handleEditSubmit} className="page-stack" style={{ gap: 16 }}>
-            <div className="form-grid">
-              <input className="input" type="text" placeholder={t("colBusinessName")} value={editForm.name ?? ""}
-                onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))} required />
-              <input className="input" type="email" placeholder={t("colEmail")} value={editForm.email ?? ""}
-                onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))} required />
-              <input className="input" type="tel" placeholder={t("colPhone")} value={editForm.phone ?? ""}
-                onChange={(e) => setEditForm((p) => ({ ...p, phone: e.target.value }))} required />
-            </div>
-            {errorMessage && <div className="message-error">{errorMessage}</div>}
-            <div className="message-row" style={{ display: "flex", gap: 12 }}>
-              <button className="primary-btn" type="submit" disabled={loadingEdit}>
-                {loadingEdit ? t("savingBtn") : t("saveBtn")}
-              </button>
-              <button type="button" className="danger-btn" onClick={() => setDeleteTargetId(editingBusiness.id)} disabled={loadingDelete}>
-                {t("deleteBtn")}
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
-
-      {deleteTargetId !== null && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true"
-          onClick={(e) => { if (e.target === e.currentTarget) setDeleteTargetId(null); }}>
-          <div className="modal-card">
-            <div className="modal-icon">!</div>
-            <h3 className="modal-title">{t("deleteBusinessTitle")}</h3>
-            <p className="modal-text">{t("deleteBusinessText")} #{deleteTargetId}</p>
-            <div className="modal-actions">
-              <button type="button" className="secondary-btn" onClick={() => setDeleteTargetId(null)}>{t("cancelBtn")}</button>
-              <button type="button" className="danger-btn" onClick={confirmDelete} disabled={loadingDelete}>
-                {loadingDelete ? t("deletingBtn") : t("deleteBtn")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <section className="section-card">
-        <div className="search-row">
-          <input className="input" placeholder={t("searchBusiness")} value={search}
-            onChange={(e) => setSearch(e.target.value)} />
-        </div>
-      </section>
-
-      {successMessage && <div className="message-success">{successMessage}</div>}
-
-      <section className="section-card">
-        <div className="panel-title-row">
-          <h3 className="panel-title">{t("businessesRegistered")}</h3>
-          <span style={{ color: "var(--muted)", fontSize: 14 }}>{filteredBusinesses.length} {t("businessesRegistered").toLowerCase()}</span>
-        </div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t("colId")}</th>
-              <th>{t("colBusinessName")}</th>
-              <th>{t("colEmail")}</th>
-              <th>{t("colPhone")}</th>
-              <th>Servicios</th>
-              <th>{t("colActions")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBusinesses.length === 0 ? (
-              <tr>
-                <td colSpan={6} style={{ textAlign: "center", padding: 24 }}>{t("noBusinesses")}</td>
-              </tr>
-            ) : (
-              filteredBusinesses.map((business) => (
-                <tr key={business.id}>
-                  <td style={{ fontWeight: 600 }}>{business.id}</td>
-                  <td style={{ fontWeight: 600 }}>{business.name}</td>
-                  <td>{business.email}</td>
-                  <td>{business.phone}</td>
-                  <td>
-                    {(business.services ?? []).map((s, i) => (
-                      <span key={i} style={{ display: "block", fontSize: 13 }}>{s.name} - {s.price}€</span>
-                    ))}
-                  </td>
-                  <td>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button type="button" className="secondary-btn" onClick={() => openEditForm(business)}>{t("editBtn")}</button>
-                      <button type="button" className="danger-btn" onClick={() => setDeleteTargetId(business.id)}>{t("deleteBtn")}</button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </section>
-    </div>
-  );
-}
-</file>
-
-<file path="app/(admin)/customers/CustomersClient.tsx">
-"use client";
-
-import { useState, useEffect } from "react";
-import type { Customer, CreateCustomerDto, UpdateCustomerDto, BusinessOption } from "@/lib/api";
-import { createCustomer, updateCustomer, deleteCustomer, getBusinessOptions } from "@/lib/api";
-import { useI18n } from "@/lib/i18n";
-
-export default function CustomersClient({ initialCustomers }: { initialCustomers: Customer[] }) {
-  const { t } = useI18n();
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
-  const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
-  const [search, setSearch] = useState("");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [createForm, setCreateForm] = useState<CreateCustomerDto>({ name: "", email: "", phone: "", businessId: 0 });
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
-  const [editForm, setEditForm] = useState<UpdateCustomerDto>({ name: "", email: "", phone: "", businessId: 0 });
-  const [loadingEdit, setLoadingEdit] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const [phoneCreateError, setPhoneCreateError] = useState("");
-  const [phoneEditError, setPhoneEditError] = useState("");
-
-  const filteredCustomers = customers.filter((c) =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.email.toLowerCase().includes(search.toLowerCase()) ||
-    c.phone.includes(search)
-  );
-
-  // Carga clientes con próxima cita y lista de negocios en paralelo
-  useEffect(() => {
-    async function fetchData() {
-      const [customersRes, businessOptions] = await Promise.all([
-        fetch("/api/customers/with-next-appointment").then((r) => r.json() as Promise<Customer[]>),
-        getBusinessOptions(),
-      ]);
-      setCustomers(customersRes);
-      setBusinesses(businessOptions);
-
-      // Inicializar businessId del formulario de creación al primer negocio disponible
-      if (businessOptions.length > 0) {
-        setCreateForm((p) => ({ ...p, businessId: businessOptions[0].id }));
-      }
-    }
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  function validatePhone(value: string): string {
-    if (/[a-zA-Z]/.test(value)) return t("phoneError1");
-    const digits = value.replace(/[\s\+\-]/g, "").length;
-    if (digits < 9) return t("phoneError2");
-    if (digits > 15) return t("phoneError3");
-    return "";
-  }
-
-  async function handleCreateSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const phoneError = validatePhone(createForm.phone);
-    if (phoneError) { setPhoneCreateError(phoneError); return; }
-    setLoading(true); setErrorMessage(""); setSuccessMessage("");
-    try {
-      const created = await createCustomer(createForm);
-      setCustomers((prev) => [created, ...prev]);
-      setIsCreateOpen(false);
-      setCreateForm({ name: "", email: "", phone: "", businessId: businesses[0]?.id ?? 0 });
-      setSuccessMessage(t("customerCreated"));
-    } catch { setErrorMessage(t("customerCreateError")); }
-    finally { setLoading(false); }
-  }
-
-  function openEditForm(customer: Customer) {
-    setEditingCustomer(customer);
-    setEditForm({ name: customer.name, email: customer.email, phone: customer.phone, businessId: customer.businessId });
-    setErrorMessage(""); setSuccessMessage(""); setIsCreateOpen(false); setDeleteTargetId(null);
-  }
-
-  async function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!editingCustomer) return;
-    const phoneError = validatePhone(editForm.phone ?? "");
-    if (phoneError) { setPhoneEditError(phoneError); return; }
-    setLoadingEdit(true); setErrorMessage(""); setSuccessMessage("");
-    try {
-      const updated = await updateCustomer(editingCustomer.id, editForm);
-      setCustomers((prev) => prev.map((c) => c.id === editingCustomer.id ? updated : c));
-      setEditingCustomer(null);
-      setSuccessMessage(t("customerUpdated"));
-    } catch { setErrorMessage(t("customerUpdateError")); }
-    finally { setLoadingEdit(false); }
-  }
-
-  async function confirmDelete() {
-    if (deleteTargetId === null) return;
-    setLoadingDelete(true); setErrorMessage(""); setSuccessMessage("");
-    try {
-      await deleteCustomer(deleteTargetId);
-      setCustomers((prev) => prev.filter((c) => c.id !== deleteTargetId));
-      setDeleteTargetId(null); setEditingCustomer(null);
-      setSuccessMessage(t("customerDeleted"));
-    } catch { setErrorMessage(t("customerDeleteError")); }
-    finally { setLoadingDelete(false); }
-  }
-
-  // ─── Selector de negocio reutilizable ────────────────────────────────────────
-
-  function BusinessSelect({
-    value,
-    onChange,
-  }: {
-    value: number;
-    onChange: (id: number) => void;
-  }) {
-    if (businesses.length === 0) {
-      return (
-        <input
-          className="input"
-          type="text"
-          disabled
-          placeholder={t("loadingBusinesses")}
-          style={{ opacity: 0.6 }}
-        />
-      );
-    }
-    return (
-      <select
-        className="input"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        required
-      >
-        <option value={0} disabled>
-          {t("selectBusiness")}
-        </option>
-        {businesses.map((b) => (
-          <option key={b.id} value={b.id}>
-            {b.name}
-          </option>
-        ))}
-      </select>
-    );
-  }
-
-  return (
-    <div className="page-stack">
-      <section className="page-hero">
-        <div>
-          <h2>{t("customersTitle")}</h2>
-          <p>{t("customersSubtitle")}</p>
-        </div>
-        <button className="primary-btn" type="button" onClick={() => setIsCreateOpen(true)}>{t("newCustomer")}</button>
-      </section>
-
-      {isCreateOpen && (
-        <section className="section-card">
-          <div className="panel-title-row">
-            <h3 className="panel-title">{t("newCustomerTitle")}</h3>
-            <button type="button" className="secondary-btn" onClick={() => setIsCreateOpen(false)}>{t("cancelBtn")}</button>
-          </div>
-          <form onSubmit={handleCreateSubmit} className="page-stack" style={{ gap: 16 }}>
-            <div className="form-grid">
-              <input className="input" type="text" placeholder={t("colName")} value={createForm.name}
-                onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))} required />
-              <input className="input" type="email" placeholder={t("colEmail")} value={createForm.email}
-                onChange={(e) => setCreateForm((p) => ({ ...p, email: e.target.value }))} required />
-              <div>
-                <input className="input" type="tel" placeholder={t("colPhone")} value={createForm.phone}
-                  onChange={(e) => { setCreateForm((p) => ({ ...p, phone: e.target.value })); setPhoneCreateError(validatePhone(e.target.value)); }} required />
-                {phoneCreateError && <p style={{ color: "red", fontSize: 12, marginTop: 4 }}>{phoneCreateError}</p>}
-              </div>
-              {/* Selector real de negocio — reemplaza el input numérico anterior */}
-              <BusinessSelect
-                value={createForm.businessId}
-                onChange={(id) => setCreateForm((p) => ({ ...p, businessId: id }))}
-              />
-            </div>
-            {errorMessage && <div className="message-error">{errorMessage}</div>}
-            <div className="message-row">
-              <button className="primary-btn" type="submit" disabled={loading}>
-                {loading ? t("savingBtn") : t("createCustomerBtn")}
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
-
-      {editingCustomer && (
-        <section className="section-card">
-          <div className="panel-title-row">
-            <h3 className="panel-title">{t("editCustomerTitle")} #{editingCustomer.id}</h3>
-            <button type="button" className="secondary-btn" onClick={() => setEditingCustomer(null)}>{t("cancelBtn")}</button>
-          </div>
-          <form onSubmit={handleEditSubmit} className="page-stack" style={{ gap: 16 }}>
-            <div className="form-grid">
-              <input className="input" type="text" placeholder={t("colName")} value={editForm.name}
-                onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))} required />
-              <input className="input" type="email" placeholder={t("colEmail")} value={editForm.email}
-                onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))} required />
-              <div>
-                <input className="input" type="tel" placeholder={t("colPhone")} value={editForm.phone}
-                  onChange={(e) => { setEditForm((p) => ({ ...p, phone: e.target.value })); setPhoneEditError(validatePhone(e.target.value)); }} required />
-                {phoneEditError && <p style={{ color: "red", fontSize: 12, marginTop: 4 }}>{phoneEditError}</p>}
-              </div>
-              {/* Selector real de negocio — reemplaza el input numérico anterior */}
-              <BusinessSelect
-                value={editForm.businessId ?? 0}
-                onChange={(id) => setEditForm((p) => ({ ...p, businessId: id }))}
-              />
-            </div>
-            {errorMessage && <div className="message-error">{errorMessage}</div>}
-            <div className="message-row" style={{ display: "flex", gap: 12 }}>
-              <button className="primary-btn" type="submit" disabled={loadingEdit}>
-                {loadingEdit ? t("savingBtn") : t("saveBtn")}
-              </button>
-              <button type="button" className="danger-btn" onClick={() => setDeleteTargetId(editingCustomer.id)} disabled={loadingDelete}>
-                {t("deleteBtn")}
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
-
-      {deleteTargetId !== null && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true"
-          onClick={(e) => { if (e.target === e.currentTarget) setDeleteTargetId(null); }}>
-          <div className="modal-card">
-            <div className="modal-icon">!</div>
-            <h3 className="modal-title">{t("deleteCustomerTitle")}</h3>
-            <p className="modal-text">{t("deleteCustomerText")}</p>
-            <div className="modal-actions">
-              <button type="button" className="secondary-btn" onClick={() => setDeleteTargetId(null)}>{t("cancelBtn")}</button>
-              <button type="button" className="danger-btn" onClick={confirmDelete} disabled={loadingDelete}>
-                {loadingDelete ? t("deletingBtn") : t("deleteBtn")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <section className="section-card">
-        <div className="search-row">
-          <input className="input" placeholder={t("searchCustomer")} value={search}
-            onChange={(e) => setSearch(e.target.value)} />
-        </div>
-      </section>
-
-      {successMessage && <div className="message-success">{successMessage}</div>}
-
-      <section className="customer-grid">
-        {filteredCustomers.length === 0 ? (
-          <p>{t("noCustomers")}</p>
-        ) : (
-          filteredCustomers.map((customer) => (
-            <div key={customer.id} className="customer-card" style={{ position: "relative" }}>
-              <p className="customer-name">{customer.name}</p>
-              <p className="customer-meta">{customer.phone}</p>
-              <p className="customer-meta">{customer.email}</p>
-              {/* Muestra el nombre del negocio si está disponible */}
-              {customer.businessId > 0 && (
-                <p className="customer-meta" style={{ fontSize: 12, color: "var(--muted)" }}>
-                  {businesses.find((b) => b.id === customer.businessId)?.name ?? `#${customer.businessId}`}
-                </p>
-              )}
-              <div className="customer-tag">Siguiente reserva:{" "}
-                {customer.nextAppointment
-                  ? new Date(customer.nextAppointment).toLocaleDateString()
-                  : "Sin citas"}
-              </div>
-              <button type="button" onClick={() => openEditForm(customer)}
-                style={{ position: "absolute", bottom: 12, right: 12, background: "none", border: "none", cursor: "pointer", fontSize: 18, opacity: 0.5 }}
-                title={t("editBtn")}>
-                ✏️
-              </button>
-            </div>
-          ))
-        )}
-      </section>
-    </div>
-  );
-}
-</file>
-
-<file path="app/layout.tsx">
-import type { Metadata } from "next";
-import "./globals.css";
-import { I18nProvider } from "@/lib/i18n";
-
-export const metadata: Metadata = {
-  title: "Bookings Admin",
-  description: "Plataforma de gestión de reservas y cobros",
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="es">
-      <body>
-        <I18nProvider>
-          {children}
-        </I18nProvider>
-      </body>
-    </html>
-  );
-}
-</file>
-
-<file path="components/layout/Sidebar.tsx">
-"use client";
-
-import { useState } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useI18n } from "@/lib/i18n";
-
-const Icons = {
-  dashboard: (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="1" width="7" height="7" rx="1.5" />
-      <rect x="10" y="1" width="7" height="7" rx="1.5" />
-      <rect x="1" y="10" width="7" height="7" rx="1.5" />
-      <rect x="10" y="10" width="7" height="7" rx="1.5" />
-    </svg>
-  ),
-  bookings: (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="3" width="14" height="13" rx="2" />
-      <path d="M6 1v4M12 1v4M2 8h14" />
-    </svg>
-  ),
-  customers: (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="9" cy="6" r="3.5" />
-      <path d="M1.5 16c0-3.314 3.358-6 7.5-6s7.5 2.686 7.5 6" />
-    </svg>
-  ),
-  payments: (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="4" width="16" height="11" rx="2" />
-      <path d="M1 8h16M5 12h2M9 12h4" />
-    </svg>
-  ),
-  businesses: (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 17V8l6-6 6 6v9" />
-      <rect x="6" y="11" width="6" height="6" rx="1" />
-    </svg>
-  ),
-  settings: (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="9" cy="9" r="2.5" />
-      <path d="M9 1v2M9 15v2M1 9h2M15 9h2M3.22 3.22l1.42 1.42M13.36 13.36l1.42 1.42M3.22 14.78l1.42-1.42M13.36 4.64l1.42-1.42" />
-    </svg>
-  ),
-  chevron: (
-    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 4l4 4 4-4" />
-    </svg>
-  ),
-  profile: (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="9" cy="6" r="3.5" />
-      <path d="M1.5 16c0-3.314 3.358-6 7.5-6s7.5 2.686 7.5 6" />
-    </svg>
-  ),
-  workspace: (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="2" width="14" height="14" rx="2" />
-      <path d="M2 7h14" />
-    </svg>
-  ),
-  bell: (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 1a5 5 0 0 1 5 5c0 5 1.5 6 1.5 6h-13S3 11 3 6a5 5 0 0 1 5-5z" />
-      <path d="M7 14a2 2 0 0 0 4 0" />
-    </svg>
-  ),
-  logout: (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 2H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h4" />
-      <path d="M12 13l4-4-4-4" />
-      <path d="M16 9H7" />
-    </svg>
-  ),
-};
-
-export default function Sidebar() {
-  const pathname = usePathname();
-  const router = useRouter();
-  const { t } = useI18n();
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-
-  const mainItems = [
-    { label: t("navDashboard"),  href: "/dashboard",  icon: Icons.dashboard  },
-    { label: t("navBookings"),   href: "/bookings",   icon: Icons.bookings   },
-    { label: t("navCustomers"),  href: "/customers",  icon: Icons.customers  },
-    { label: t("navPayments"),   href: "/payments",   icon: Icons.payments   },
-    { label: t("navBusinesses"), href: "/businesses", icon: Icons.businesses },
-  ];
-
-  const settingsSubItems = [
-    { label: t("settingsProfile"),       href: "/settings/profile",       icon: Icons.profile   },
-    { label: t("settingsWorkspace"),     href: "/settings/workspace",     icon: Icons.workspace },
-    { label: t("settingsNotifications"), href: "/settings/notifications", icon: Icons.bell      },
-  ];
-
-  const isSettingsActive = pathname.startsWith("/settings");
-
-  function handleLogout() {
-    localStorage.removeItem("token");
-    router.replace("/login");
-  }
-
-  return (
-    <>
-      <aside className="admin-sidebar">
-        {/* Brand */}
-        <div className="admin-sidebar__brand">
-          <div className="admin-sidebar__logo" aria-hidden="true">
-            <div className="admin-sidebar__logo-inner" />
-          </div>
-          <span className="admin-sidebar__title">BookFlow</span>
-        </div>
-
-        {/* Main nav */}
-        <p className="admin-sidebar__section-label">{t("sectionMain")}</p>
-        <nav className="admin-sidebar__nav">
-          {mainItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`admin-sidebar__link${isActive ? " admin-sidebar__link--active" : ""}`}
-              >
-                <span className="sidebar-icon">{item.icon}</span>
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Bottom section */}
-        <p className="admin-sidebar__section-label" style={{ marginTop: 24 }}>{t("sectionSystem")}</p>
-        <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-
-          {/* Settings toggle */}
-          <button
-            type="button"
-            onClick={() => setSettingsOpen((o) => !o)}
-            className={`admin-sidebar__link${isSettingsActive ? " admin-sidebar__link--active" : ""}`}
-            style={{
-              width: "100%",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              textAlign: "left",
-              justifyContent: "space-between",
-            }}
-          >
-            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span className="sidebar-icon">{Icons.settings}</span>
-              <span>{t("navSettings")}</span>
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                opacity: 0.5,
-                transition: "transform 0.2s ease",
-                transform: settingsOpen ? "rotate(180deg)" : "rotate(0deg)",
-                width: 14,
-                height: 14,
-              }}
-            >
-              {Icons.chevron}
-            </span>
-          </button>
-
-          {/* Settings sub-panel */}
-          {settingsOpen && (
-            <div
-              style={{
-                margin: "2px 0 4px 16px",
-                padding: "6px 8px",
-                background: "var(--surface-2, color-mix(in srgb, var(--surface) 60%, var(--border)))",
-                borderRadius: 8,
-                border: "1px solid var(--border)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 1,
-              }}
-            >
-              {settingsSubItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`admin-sidebar__link${isActive ? " admin-sidebar__link--active" : ""}`}
-                    style={{ fontSize: 12.5, padding: "6px 10px", gap: 8 }}
-                  >
-                    <span className="sidebar-icon" style={{ width: 14, height: 14 }}>{item.icon}</span>
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-
-              {/* Divider */}
-              <div style={{ height: 1, background: "var(--border)", margin: "4px 2px" }} />
-
-              {/* Logout button */}
-              <button
-                type="button"
-                onClick={() => setShowLogoutConfirm(true)}
-                className="admin-sidebar__link"
-                style={{
-                  fontSize: 12.5,
-                  padding: "6px 10px",
-                  gap: 8,
-                  width: "100%",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  color: "var(--danger, #e53e3e)",
-                }}
-              >
-                <span className="sidebar-icon" style={{ width: 14, height: 14, color: "var(--danger, #e53e3e)" }}>
-                  {Icons.logout}
-                </span>
-                <span>{t("logoutLabel")}</span>
-              </button>
-            </div>
-          )}
-        </nav>
-
-        {/* User footer */}
-        <div className="admin-sidebar__footer">
-          <div className="admin-sidebar__user">
-            <div className="admin-sidebar__avatar">A</div>
-            <div className="admin-sidebar__user-info">
-              <p className="admin-sidebar__user-name">Admin</p>
-              <p className="admin-sidebar__user-role">workspace</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Logout confirm modal */}
-      {showLogoutConfirm && (
-        <div
-          className="modal-backdrop"
-          onClick={() => setShowLogoutConfirm(false)}
-        >
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-icon">🚪</div>
-            <p className="modal-title">{t("logoutConfirmTitle")}</p>
-            <p className="modal-text">{t("logoutConfirmText")}</p>
-            <div className="modal-actions">
-              <button type="button" className="secondary-btn" onClick={() => setShowLogoutConfirm(false)}>
-                {t("logoutCancel")}
-              </button>
-              <button type="button" className="danger-btn" onClick={handleLogout}>
-                {t("logoutConfirm")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
 }
 </file>
 
@@ -6170,6 +6125,7 @@ export async function deleteBusiness(id: number): Promise<void> {
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n, flags, type Locale } from "@/lib/i18n";
+import { getAppointments } from "@/lib/api";
 
 const languages: { locale: Locale; label: string }[] = [
   { locale: "es", label: "Español" },
@@ -6190,7 +6146,6 @@ function decodeJwt(token: string): { email?: string; sub?: number; name?: string
   }
 }
 
-// ── Icon helpers ──
 function IconSun() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -6239,6 +6194,180 @@ function IconExport() {
   );
 }
 
+// ── Exportar PDF via ventana de impresión ─────────────────────────────────────
+
+function exportToPDF(rows: {
+  id: number; date: string; time: string; status: string;
+  customerId: number; businessId: number; serviceName: string;
+}[]) {
+  const statusLabel = (s: string) =>
+    s === "pending" ? "Pendiente" : s === "confirmed" ? "Confirmada" : "Pagada";
+
+  const statusColor = (s: string) =>
+    s === "pending" ? "#854d0e" : s === "confirmed" ? "#15803d" : "#1e40af";
+
+  const statusBg = (s: string) =>
+    s === "pending" ? "#fef9c3" : s === "confirmed" ? "#dcfce7" : "#dbeafe";
+
+  const today = new Date().toLocaleDateString("es-ES", {
+    day: "2-digit", month: "long", year: "numeric",
+  });
+
+  const rows_html = rows.map(r => `
+    <tr>
+      <td>${r.id}</td>
+      <td>${r.date}</td>
+      <td>${r.time}</td>
+      <td>${r.serviceName}</td>
+      <td>${r.customerId}</td>
+      <td>${r.businessId}</td>
+      <td>
+        <span style="
+          display: inline-block;
+          padding: 2px 10px;
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 600;
+          background: ${statusBg(r.status)};
+          color: ${statusColor(r.status)};
+        ">${statusLabel(r.status)}</span>
+      </td>
+    </tr>
+  `).join("");
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8" />
+      <title>BookFlow — Informe de reservas</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          font-size: 13px;
+          color: #0f172a;
+          background: #fff;
+          padding: 40px 48px;
+        }
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 32px;
+          padding-bottom: 20px;
+          border-bottom: 2px solid #0f172a;
+        }
+        .brand { font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: #0f172a; }
+        .brand-sub { font-size: 12px; color: #64748b; margin-top: 3px; }
+        .meta { text-align: right; font-size: 12px; color: #64748b; line-height: 1.6; }
+        .meta strong { color: #0f172a; }
+        h2 {
+          font-size: 16px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          margin-bottom: 14px;
+          color: #0f172a;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 12px;
+        }
+        thead tr {
+          background: #f8fafc;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+          padding: 9px 12px;
+          text-align: left;
+          font-size: 10.5px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #64748b;
+        }
+        td {
+          padding: 10px 12px;
+          border-bottom: 1px solid #f1f5f9;
+          color: #0f172a;
+          vertical-align: middle;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #f8fafc; }
+        .footer {
+          margin-top: 32px;
+          padding-top: 16px;
+          border-top: 1px solid #e2e8f0;
+          font-size: 11px;
+          color: #94a3b8;
+          display: flex;
+          justify-content: space-between;
+        }
+        @media print {
+          body { padding: 20px 28px; }
+          @page { margin: 0; size: A4 landscape; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div>
+          <div class="brand">BookFlow</div>
+          <div class="brand-sub">Admin workspace</div>
+        </div>
+        <div class="meta">
+          <div><strong>Informe de reservas</strong></div>
+          <div>Generado el ${today}</div>
+          <div>Total: ${rows.length} reservas</div>
+        </div>
+      </div>
+
+      <h2>Listado completo de reservas</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Servicio</th>
+            <th>Cliente ID</th>
+            <th>Negocio ID</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows_html}
+        </tbody>
+      </table>
+
+      <div class="footer">
+        <span>BookFlow — Plataforma de gestión de reservas y cobros</span>
+        <span>${today}</span>
+      </div>
+
+      <script>
+        window.onload = function() {
+          window.print();
+          window.onafterprint = function() { window.close(); };
+        };
+      </script>
+    </body>
+    </html>
+  `;
+
+  const win = window.open("", "_blank");
+  if (!win) {
+    alert("Activa las ventanas emergentes para generar el PDF.");
+    return;
+  }
+  win.document.write(html);
+  win.document.close();
+}
+
+// ── Componente ────────────────────────────────────────────────────────────────
+
 export default function Header() {
   const { t, locale, setLocale } = useI18n();
   const router = useRouter();
@@ -6248,6 +6377,7 @@ export default function Header() {
   const [userName, setUserName]       = useState<string | null>(null);
   const [userInitial, setUserInitial] = useState("A");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [exporting, setExporting]     = useState(false);
   const langDropdownRef = useRef<HTMLDivElement>(null);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -6295,27 +6425,34 @@ export default function Header() {
     router.replace("/login");
   }
 
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const data = await getAppointments();
+      exportToPDF(data);
+    } catch {
+      alert("No se pudo obtener los datos. Comprueba que el backend está activo.");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <>
       <header className="admin-header">
-        {/* Left: title + search */}
         <div className="admin-header__left">
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span className="admin-header__title">{t("appTitle")}</span>
             <span className="admin-header__subtitle">{t("appSubtitle")}</span>
           </div>
 
-          {/* Search bar */}
           <div className="admin-header__search">
             <span className="admin-header__search-icon"><IconSearch /></span>
             <input type="search" placeholder="Buscar..." aria-label="Buscar" />
           </div>
         </div>
 
-        {/* Right: actions */}
         <div className="admin-header__actions">
-
-          {/* Calendar */}
           <button
             type="button"
             className="admin-header__icon-btn"
@@ -6326,7 +6463,6 @@ export default function Header() {
             <IconCalendar />
           </button>
 
-          {/* Notifications */}
           <button
             type="button"
             className="admin-header__icon-btn"
@@ -6336,7 +6472,6 @@ export default function Header() {
             <IconBell />
           </button>
 
-          {/* Dark mode */}
           <button
             type="button"
             className="admin-header__icon-btn"
@@ -6347,7 +6482,6 @@ export default function Header() {
             {dark ? <IconSun /> : <IconMoon />}
           </button>
 
-          {/* Language */}
           <div ref={langDropdownRef} style={{ position: "relative" }}>
             <button
               type="button"
@@ -6377,24 +6511,20 @@ export default function Header() {
             )}
           </div>
 
-          {/* CTA Export */}
           <button
             type="button"
             className="header-cta-btn"
-            onClick={() => {/* exportar */}}
+            onClick={handleExport}
+            disabled={exporting}
           >
             <IconExport />
-            {t("exportReport")}
+            {exporting ? "Generando..." : t("exportReport")}
           </button>
         </div>
       </header>
 
-      {/* Logout confirm modal */}
       {showLogoutConfirm && (
-        <div
-          className="modal-backdrop"
-          onClick={() => setShowLogoutConfirm(false)}
-        >
+        <div className="modal-backdrop" onClick={() => setShowLogoutConfirm(false)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-icon">🚪</div>
             <p className="modal-title">¿Cerrar sesión?</p>

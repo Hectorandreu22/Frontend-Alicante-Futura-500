@@ -18,7 +18,6 @@ const bookings: DashboardBooking[] = [
   { time: "12:00", client: "Lucía Sánchez",  business: "Barber Studio",     service: "Corte caballero",  status: "paid"      },
 ];
 
-// Monthly revenue data for the mini chart
 const revenueData = [420, 560, 480, 710, 650, 820];
 const monthKeys   = ["Ene", "Feb", "Mar", "Abr", "May", "Jun"];
 
@@ -30,7 +29,6 @@ function Badge({ status, t }: { status: DashboardBookingStatus; t: (k: string) =
   return <span className={`badge badge--${status}`}>{label}</span>;
 }
 
-// ── Simple inline SVG line chart ──
 function MiniLineChart() {
   const max = Math.max(...revenueData);
   const w = 240, h = 80, pad = 12;
@@ -40,7 +38,6 @@ function MiniLineChart() {
     const y = pad + (1 - v / max) * (h - pad * 2);
     return `${x},${y}`;
   }).join(" ");
-
   const areaPoints = [
     `${pad},${h - pad}`,
     ...revenueData.map((v, i) => {
@@ -50,7 +47,6 @@ function MiniLineChart() {
     }),
     `${pad + (revenueData.length - 1) * xStep},${h - pad}`,
   ].join(" ");
-
   return (
     <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: 80, overflow: "visible" }}>
       <defs>
@@ -59,54 +55,34 @@ function MiniLineChart() {
           <stop offset="100%" stopColor="var(--brand)" stopOpacity="0" />
         </linearGradient>
       </defs>
-      {/* Area fill */}
       <polygon points={areaPoints} fill="url(#lineGrad)" />
-      {/* Line */}
-      <polyline
-        points={points}
-        fill="none"
-        stroke="var(--brand)"
-        strokeWidth="2.2"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-      {/* Dots */}
+      <polyline points={points} fill="none" stroke="var(--brand)" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
       {revenueData.map((v, i) => {
         const x = pad + i * xStep;
         const y = pad + (1 - v / max) * (h - pad * 2);
-        return (
-          <circle key={i} cx={x} cy={y} r="3.5" fill="var(--brand)" stroke="var(--surface)" strokeWidth="2" />
-        );
+        return <circle key={i} cx={x} cy={y} r="3.5" fill="var(--brand)" stroke="var(--surface)" strokeWidth="2" />;
       })}
     </svg>
   );
 }
 
-// ── Simple bar chart ──
 function MiniBarChart() {
   const max = Math.max(...revenueData);
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 80 }}>
       {revenueData.map((v, i) => (
         <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, height: "100%" }}>
-          <div style={{
-            flex: 1,
-            width: "100%",
-            display: "flex",
-            alignItems: "flex-end",
-          }}>
-            <div
-              style={{
-                width: "100%",
-                height: `${(v / max) * 100}%`,
-                background: i === revenueData.length - 1 ? "var(--brand)" : "var(--brand-light)",
-                borderRadius: "4px 4px 0 0",
-                minHeight: 6,
-                transition: "height 0.4s ease",
-                border: "1px solid",
-                borderColor: i === revenueData.length - 1 ? "var(--brand)" : "var(--border)",
-              }}
-            />
+          <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "flex-end" }}>
+            <div style={{
+              width: "100%",
+              height: `${(v / max) * 100}%`,
+              background: i === revenueData.length - 1 ? "var(--brand)" : "var(--brand-light)",
+              borderRadius: "4px 4px 0 0",
+              minHeight: 6,
+              transition: "height 0.4s ease",
+              border: "1px solid",
+              borderColor: i === revenueData.length - 1 ? "var(--brand)" : "var(--border)",
+            }} />
           </div>
         </div>
       ))}
@@ -119,6 +95,14 @@ export default function DashboardPage() {
 
   return (
     <div className="page-stack">
+
+      {/* ── Hero ── */}
+      <section className="page-hero">
+        <div>
+          <h2>{t("dashboardTitle")}</h2>
+          <p>{t("dashboardSubtitle")}</p>
+        </div>
+      </section>
 
       {/* ── KPI Cards ── */}
       <section className="kpi-grid">
@@ -144,13 +128,10 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ── Dashboard overview: table + right panel ── */}
+      {/* ── Dashboard overview ── */}
       <section className="dashboard-grid">
-
-        {/* Left column */}
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-          {/* Upcoming bookings table */}
           <div className="section-card">
             <div className="panel-title-row">
               <h3 className="panel-title">{t("upcomingBookings")}</h3>
@@ -192,15 +173,12 @@ export default function DashboardPage() {
             </table>
           </div>
 
-          {/* Monthly Revenue chart */}
           <div className="section-card">
             <div className="panel-title-row">
               <h3 className="panel-title">{t("monthlyRevenue")}</h3>
               <span style={{ fontSize: 12, color: "var(--muted)", fontWeight: 500 }}>{t("lastSixMonths")}</span>
             </div>
-
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-              {/* Line chart */}
               <div>
                 <p style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
                   {t("accumulatedTrend")}
@@ -212,8 +190,6 @@ export default function DashboardPage() {
                   ))}
                 </div>
               </div>
-
-              {/* Bar chart */}
               <div>
                 <p style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
                   {t("byService")}
@@ -231,48 +207,28 @@ export default function DashboardPage() {
 
         {/* Right panel */}
         <div className="info-stack">
-
-          {/* Next booking */}
           <div className="info-box">
             <p className="info-box__eyebrow">{t("nextBooking")}</p>
             <p className="info-box__title">María López</p>
             <p className="info-box__text">09:00 · Peluquería Nova</p>
             <div style={{ marginTop: 12 }}>
-              <span style={{
-                fontSize: 11.5,
-                fontWeight: 700,
-                color: "var(--brand)",
-                background: "var(--brand-soft)",
-                padding: "3px 10px",
-                borderRadius: 999,
-              }}>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: "var(--brand)", background: "var(--brand-soft)", padding: "3px 10px", borderRadius: 999 }}>
                 En 30 min
               </span>
             </div>
           </div>
 
-          {/* Featured business */}
           <div className="info-box">
             <p className="info-box__eyebrow">{t("featuredBusiness")}</p>
             <p className="info-box__title">{t("featuredBusinessValue")}</p>
             <p className="info-box__text">{t("featuredBusinessMeta")}</p>
-            <div style={{
-              marginTop: 12,
-              display: "flex",
-              gap: 4,
-            }}>
+            <div style={{ marginTop: 12, display: "flex", gap: 4 }}>
               {["—", "—", "—"].map((_, i) => (
-                <div key={i} style={{
-                  height: 3,
-                  flex: 1,
-                  borderRadius: 99,
-                  background: i < 2 ? "var(--brand)" : "var(--border)",
-                }} />
+                <div key={i} style={{ height: 3, flex: 1, borderRadius: 99, background: i < 2 ? "var(--brand)" : "var(--border)" }} />
               ))}
             </div>
           </div>
 
-          {/* Reminders */}
           <div className="info-box">
             <p className="info-box__eyebrow" style={{ color: "var(--brand)", marginBottom: 10 }}>{t("reminders")}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -291,14 +247,13 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Recent activity */}
           <div className="info-box">
             <p className="info-box__eyebrow">{t("recentActivity")}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
               {[
-                { label: "Nueva reserva creada",      time: "Hace 5 min",  dot: "var(--brand)" },
-                { label: "Pago recibido · 120€",       time: "Hace 18 min", dot: "#3b82f6"       },
-                { label: "Cliente nuevo registrado",   time: "Hace 1 h",    dot: "#8b5cf6"       },
+                { label: "Nueva reserva creada",     time: "Hace 5 min",  dot: "var(--brand)" },
+                { label: "Pago recibido · 120€",     time: "Hace 18 min", dot: "#3b82f6"      },
+                { label: "Cliente nuevo registrado", time: "Hace 1 h",    dot: "#8b5cf6"      },
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                   <div style={{ width: 7, height: 7, borderRadius: "50%", background: item.dot, marginTop: 5, flexShrink: 0 }} />
