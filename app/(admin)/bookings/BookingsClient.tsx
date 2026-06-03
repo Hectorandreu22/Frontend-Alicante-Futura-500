@@ -40,6 +40,8 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingBookingId, setEditingBookingId] = useState<number | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const [createServices, setCreateServices] = useState<Service[]>([]);
+  const [editServices, setEditServices] = useState<Service[]>([]);
 
   const filteredBookings = useMemo(() => {
     if (statusFilter === "all") return bookings;
@@ -112,6 +114,36 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
     finally { setLoadingEdit(false); }
   }
 
+  async function handleCreateBusinessChange(businessId: number) {
+  updateCreateForm("businessId", businessId);
+  updateCreateForm("serviceId", 0); // limpiar servicio anterior
+  setCreateServices([]);
+
+  if (businessId === 0) return;
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/businesses/${businessId}`,
+    { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+  );
+  const data = await res.json();
+  setCreateServices(data.services ?? []);
+}
+
+async function handleEditBusinessChange(businessId: number) {
+  updateEditForm("businessId", businessId);
+  updateEditForm("serviceId", 0);
+  setEditServices([]);
+
+  if (businessId === 0) return;
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/businesses/${businessId}`,
+    { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+  );
+  const data = await res.json();
+  setEditServices(data.services ?? []);
+}
+
   async function confirmDelete() {
     if (deleteTargetId === null) return;
     setDeletingBookingId(deleteTargetId); setSuccessMessage(""); setErrorMessage("");
@@ -146,6 +178,19 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
       </select>
     );
   }
+
+  function ServiceSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <select className="select" value={value} onChange={(e) => onChange(e.target.value)} required>
+      <option value="" disabled>Selecciona servicio</option>
+      {createServices.map((s) => (
+        <option key={s.id} value={s.name}>{s.name}</option>
+      ))}
+    </select>
+  );
+}
+
+  
 
   return (
     <div className="page-stack">
@@ -196,8 +241,8 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
                 <option value="paid">{t("statusPaid")}</option>
               </select>
               <CustomerSelect value={createForm.customerId} onChange={(v) => updateCreateForm("customerId", v)} />
-              <BusinessSelect value={createForm.businessId} onChange={(v) => updateCreateForm("businessId", v)} />
-              <input className="input input--full" type="text" value={createForm.serviceName} onChange={(e) => updateCreateForm("serviceName", e.target.value)} placeholder={t("colService")} required />
+              <BusinessSelect value={createForm.businessId} onChange={handleCreateBusinessChange} />
+              <ServiceSelect value={createForm.serviceName} onChange={(v) => updateCreateForm("serviceName", v)} />
             </div>
             {errorMessage && <div className="message-error">{errorMessage}</div>}
             <div className="message-row">
@@ -225,7 +270,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
                 <option value="paid">{t("statusPaid")}</option>
               </select>
               <CustomerSelect value={editForm.customerId} onChange={(v) => updateEditForm("customerId", v)} />
-              <BusinessSelect value={editForm.businessId} onChange={(v) => updateEditForm("businessId", v)} />
+              <BusinessSelect value={editForm.businessId} onChange={handleEditBusinessChange} />
               <input className="input input--full" type="text" value={editForm.serviceName} onChange={(e) => updateEditForm("serviceName", e.target.value)} placeholder={t("colService")} required />
             </div>
             {errorMessage && <div className="message-error">{errorMessage}</div>}
