@@ -201,13 +201,27 @@ export async function getBusinessOptions(): Promise<BusinessOption[]> {
   return businesses.map(({ id, name }) => ({ id, name }));
 }
 
-export async function createBusiness(data: CreateBusinessDto): Promise<Business> {
+/*export async function createBusiness(data: CreateBusinessDto): Promise<Business> {
   const res = await fetch(`${API_URL}/businesses`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Error al crear el negocio");
+  return res.json();
+}*/
+
+export async function createBusiness(data: CreateBusinessDto): Promise<Business> {
+  const res = await fetch(`${API_URL}/businesses`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    console.error("Error del backend:", error); // 👈 añade esto
+    throw new Error("Error al crear el negocio");
+  }
   return res.json();
 }
 
