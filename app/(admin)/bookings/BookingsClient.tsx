@@ -214,7 +214,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
     className="modal-backdrop" 
     role="dialog" 
     aria-modal="true" 
-    onClick={(e) => { if (e.target === e.currentTarget) closeEditForm(); }}
+    onMouseDown={(e) => { if (e.target === e.currentTarget) closeEditForm(); }}
   >
     <div className="modal-card" style={{ width: "min(100%, 550px)" }}>
       <div className="panel-title-row">
