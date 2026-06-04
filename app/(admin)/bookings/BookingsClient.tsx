@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { Booking, BookingStatus, Business, CreateBookingDto, Customer, UpdateBookingDto } from "@/lib/api";
+import type { Booking, BookingStatus, Business, BusinessService, CreateBookingDto, Customer, UpdateBookingDto } from "@/lib/api";
 import { createAppointment, deleteAppointment, getBusinesses, getCustomers, updateAppointment } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 
@@ -40,6 +40,8 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingBookingId, setEditingBookingId] = useState<number | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const [createServices, setCreateServices] = useState<BusinessService[]>([]);
+  const [editServices, setEditServices] = useState<BusinessService[]>([]);
 
   const filteredBookings = useMemo(() => {
     if (statusFilter === "all") return bookings;
@@ -112,6 +114,36 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
     finally { setLoadingEdit(false); }
   }
 
+  async function handleCreateBusinessChange(businessId: number) {
+  updateCreateForm("businessId", businessId);
+  updateCreateForm("serviceName", ""); // limpiar servicio anterior
+  setCreateServices([]);
+
+  if (businessId === 0) return;
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/businesses/${businessId}`,
+    { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+  );
+  const data = await res.json();
+  setCreateServices(data.services ?? []);
+}
+
+async function handleEditBusinessChange(businessId: number) {
+  updateEditForm("businessId", businessId);
+  updateEditForm("serviceName", "");
+  setEditServices([]);
+
+  if (businessId === 0) return;
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/businesses/${businessId}`,
+    { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+  );
+  const data = await res.json();
+  setEditServices(data.services ?? []);
+}
+
   async function confirmDelete() {
     if (deleteTargetId === null) return;
     setDeletingBookingId(deleteTargetId); setSuccessMessage(""); setErrorMessage("");
@@ -146,6 +178,19 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
       </select>
     );
   }
+
+  function ServiceSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <select className="select" value={value} onChange={(e) => onChange(e.target.value)} required>
+      <option value="" disabled>Selecciona servicio</option>
+      {createServices.map((s) => (
+        <option key={s.id} value={s.name}>{s.name}</option>
+      ))}
+    </select>
+  );
+}
+
+  
 
   return (
     <div className="page-stack">
@@ -196,8 +241,8 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
                 <option value="paid">{t("statusPaid")}</option>
               </select>
               <CustomerSelect value={createForm.customerId} onChange={(v) => updateCreateForm("customerId", v)} />
-              <BusinessSelect value={createForm.businessId} onChange={(v) => updateCreateForm("businessId", v)} />
-              <input className="input input--full" type="text" value={createForm.serviceName} onChange={(e) => updateCreateForm("serviceName", e.target.value)} placeholder={t("colService")} required />
+              <BusinessSelect value={createForm.businessId} onChange={handleCreateBusinessChange} />
+              <ServiceSelect value={createForm.serviceName} onChange={(v) => updateCreateForm("serviceName", v)} />
             </div>
             {errorMessage && <div className="message-error">{errorMessage}</div>}
             <div className="message-row">
@@ -209,52 +254,34 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
         </section>
       )}
 
-  {editingBookingId !== null && (
-  <div 
-    className="modal-backdrop" 
-    role="dialog" 
-    aria-modal="true" 
-    onMouseDown={(e) => { if (e.target === e.currentTarget) closeEditForm(); }}
-  >
-    <div className="modal-card" style={{ width: "min(100%, 550px)" }}>
-      <div className="panel-title-row">
-        <h3 className="modal-title">{t("editBookingTitle")} #{editingBookingId}</h3>
-        <button type="button" className="secondary-btn" onClick={closeEditForm}>
-          {t("cancelBtn")}
-        </button>
-      </div>
-
-      <form onSubmit={handleEditSubmit} className="page-stack" style={{ gap: 16, marginTop: 16 }}>
-        <div className="form-grid">
-          <input className="input" type="date" value={editForm.date} onChange={(e) => updateEditForm("date", e.target.value)} required />
-          <input className="input" type="time" value={editForm.time} onChange={(e) => updateEditForm("time", e.target.value)} required />
-          
-          <select className="select" value={editForm.status} onChange={(e) => updateEditForm("status", e.target.value as BookingStatus)}>
-            <option value="pending">{t("statusPending")}</option>
-            <option value="confirmed">{t("statusConfirmed")}</option>
-            <option value="paid">{t("statusPaid")}</option>
-          </select>
-
-          <CustomerSelect value={editForm.customerId} onChange={(v) => updateEditForm("customerId", v)} />
-          <BusinessSelect value={editForm.businessId} onChange={(v) => updateEditForm("businessId", v)} />
-          
-          <input className="input input--full" type="text" value={editForm.serviceName} onChange={(e) => updateEditForm("serviceName", e.target.value)} placeholder={t("colService")} required />
-        </div>
-
-        {errorMessage && <div className="message-error">{errorMessage}</div>}
-
-        <div className="modal-actions" style={{ marginTop: 8 }}>
-          <button type="button" className="secondary-btn" onClick={closeEditForm}>
-            {t("cancelBtn")}
-          </button>
-          <button className="primary-btn" type="submit" disabled={loadingEdit}>
-            {loadingEdit ? t("savingBtn") : t("saveBtn")}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+      {editingBookingId !== null && (
+        <section className="section-card">
+          <div className="panel-title-row">
+            <h3 className="panel-title">{t("editBookingTitle")} #{editingBookingId}</h3>
+            <button type="button" className="secondary-btn" onClick={closeEditForm}>{t("cancelBtn")}</button>
+          </div>
+          <form onSubmit={handleEditSubmit} className="page-stack" style={{ gap: 16 }}>
+            <div className="form-grid">
+              <input className="input" type="date" value={editForm.date} onChange={(e) => updateEditForm("date", e.target.value)} required />
+              <input className="input" type="time" value={editForm.time} onChange={(e) => updateEditForm("time", e.target.value)} required />
+              <select className="select" value={editForm.status} onChange={(e) => updateEditForm("status", e.target.value as BookingStatus)}>
+                <option value="pending">{t("statusPending")}</option>
+                <option value="confirmed">{t("statusConfirmed")}</option>
+                <option value="paid">{t("statusPaid")}</option>
+              </select>
+              <CustomerSelect value={editForm.customerId} onChange={(v) => updateEditForm("customerId", v)} />
+              <BusinessSelect value={editForm.businessId} onChange={handleEditBusinessChange} />
+              <input className="input input--full" type="text" value={editForm.serviceName} onChange={(e) => updateEditForm("serviceName", e.target.value)} placeholder={t("colService")} required />
+            </div>
+            {errorMessage && <div className="message-error">{errorMessage}</div>}
+            <div className="message-row">
+              <button className="primary-btn" type="submit" disabled={loadingEdit}>
+                {loadingEdit ? t("savingBtn") : t("saveBtn")}
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
 
       {deleteTargetId !== null && (
         <div className="modal-backdrop" role="dialog" aria-modal="true"
