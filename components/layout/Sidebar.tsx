@@ -84,17 +84,17 @@ export default function Sidebar() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const mainItems = [
-    { label: t("navDashboard"),  href: "/dashboard",  icon: Icons.dashboard  },
-    { label: t("navBookings"),   href: "/bookings",   icon: Icons.bookings   },
-    { label: t("navCustomers"),  href: "/customers",  icon: Icons.customers  },
-    { label: t("navPayments"),   href: "/payments",   icon: Icons.payments   },
+    { label: t("navDashboard"), href: "/dashboard", icon: Icons.dashboard },
+    { label: t("navBookings"), href: "/bookings", icon: Icons.bookings },
+    { label: t("navCustomers"), href: "/customers", icon: Icons.customers },
+    { label: t("navPayments"), href: "/payments", icon: Icons.payments },
     { label: t("navBusinesses"), href: "/businesses", icon: Icons.businesses },
   ];
 
   const settingsSubItems = [
-    { label: t("settingsProfile"),       href: "/settings/profile",       icon: Icons.profile   },
-    { label: t("settingsWorkspace"),     href: "/settings/workspace",     icon: Icons.workspace },
-    { label: t("settingsNotifications"), href: "/settings/notifications", icon: Icons.bell      },
+    { label: t("settingsProfile"), href: "/settings/profile", icon: Icons.profile },
+    { label: t("settingsWorkspace"), href: "/settings/workspace", icon: Icons.workspace },
+    { label: t("settingsNotifications"), href: "/settings/notifications", icon: Icons.bell },
   ];
 
   const isSettingsActive = pathname.startsWith("/settings");
@@ -107,7 +107,6 @@ export default function Sidebar() {
   return (
     <>
       <aside className="admin-sidebar">
-        {/* Brand */}
         <div className="admin-sidebar__brand">
           <div className="admin-sidebar__logo" aria-hidden="true">
             <div className="admin-sidebar__logo-inner" />
@@ -115,7 +114,6 @@ export default function Sidebar() {
           <span className="admin-sidebar__title">BookFlow</span>
         </div>
 
-        {/* Main nav */}
         <p className="admin-sidebar__section-label">{t("sectionMain")}</p>
         <nav className="admin-sidebar__nav">
           {mainItems.map((item) => {
@@ -133,11 +131,8 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* Bottom section */}
         <p className="admin-sidebar__section-label" style={{ marginTop: 24 }}>{t("sectionSystem")}</p>
         <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-
-          {/* Settings toggle */}
           <button
             type="button"
             onClick={() => setSettingsOpen((o) => !o)}
@@ -170,7 +165,6 @@ export default function Sidebar() {
             </span>
           </button>
 
-          {/* Settings sub-panel */}
           {settingsOpen && (
             <div
               style={{
@@ -199,10 +193,8 @@ export default function Sidebar() {
                 );
               })}
 
-              {/* Divider */}
               <div style={{ height: 1, background: "var(--border)", margin: "4px 2px" }} />
 
-              {/* Logout button */}
               <button
                 type="button"
                 onClick={() => setShowLogoutConfirm(true)}
@@ -228,7 +220,6 @@ export default function Sidebar() {
           )}
         </nav>
 
-        {/* User footer */}
         <div className="admin-sidebar__footer">
           <div className="admin-sidebar__user">
             <div className="admin-sidebar__avatar">A</div>
@@ -240,12 +231,8 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Logout confirm modal */}
       {showLogoutConfirm && (
-        <div
-          className="modal-backdrop"
-          onClick={() => setShowLogoutConfirm(false)}
-        >
+        <div className="modal-backdrop" onClick={() => setShowLogoutConfirm(false)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-icon">🚪</div>
             <p className="modal-title">{t("logoutConfirmTitle")}</p>
