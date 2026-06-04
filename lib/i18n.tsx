@@ -16,7 +16,7 @@ export const flags: Record<Locale, string> = {
 export const translations: Record<Locale, Record<string, string>> = {
     es: {
         // General
-        appTitle: "Bookings Admin",
+        appTitle: "BookFlow",
         appSubtitle: "Plataforma de gestión de reservas y cobros",
         exportReport: "Exportar informe",
         // Dashboard
@@ -50,8 +50,8 @@ export const translations: Record<Locale, Record<string, string>> = {
         accumulatedTrend: "Tendencia acumulada",
         byService: "Por servicio",
         // Bookings
-        bookingsTitle: "Bookings list",
-        bookingsSubtitle: "Gestión de reservas conectada con la API.",
+        bookingsTitle: "Gestionar reservas",
+        bookingsSubtitle: "Gestionar las reservas que hacen los clientes con los negocios.",
         newBooking: "Nueva reserva",
         registeredBookings: "Reservas registradas",
         filterAll: "Todas",
@@ -92,7 +92,7 @@ export const translations: Record<Locale, Record<string, string>> = {
         bookingDeleteError: "No se pudo eliminar la reserva.",
         createBookingBtn: "Crear reserva",
         // Customers
-        customersTitle: "Customer directory",
+        customersTitle: "Gestionar clientes",
         customersSubtitle: "Gestión visual de clientes y próximas reservas.",
         newCustomer: "Nuevo cliente",
         searchCustomer: "Buscar cliente...",
@@ -115,7 +115,7 @@ export const translations: Record<Locale, Record<string, string>> = {
         phoneError2: "Introduce un número de teléfono válido (Mínimo 9 dígitos)",
         phoneError3: "Introduce un número de teléfono válido (Demasiados dígitos)",
         // Payments
-        paymentsTitle: "Payments",
+        paymentsTitle: "Gestionar pagos",
         paymentsSubtitle: "Seguimiento de cobros realizados y pendientes.",
         registerPayment: "Registrar cobro",
         newPaymentTitle: "Nuevo cobro",
@@ -143,7 +143,7 @@ export const translations: Record<Locale, Record<string, string>> = {
         savePaymentBtn: "Guardar cambios",
         deletePaymentBtn: "Eliminar cobro",
         fillRequired: "Rellena todos los campos obligatorios.",
-        navDashboard: "Dashboard",
+        navDashboard: "Panel de control",
         navBookings: "Reservas",
         navCustomers: "Clientes",
         navPayments: "Pagos",
@@ -160,7 +160,7 @@ export const translations: Record<Locale, Record<string, string>> = {
         logoutConfirm: "Salir",
         logoutCancel: "Cancelar",
         // Businesses
-        businessesTitle: "Negocios",
+        businessesTitle: "Gestionar negocios",
         businessesSubtitle: "Gestiona los negocios, sus servicios y precios.",
         newBusiness: "Nuevo negocio",
         searchBusiness: "Buscar por nombre, email o servicio...",
