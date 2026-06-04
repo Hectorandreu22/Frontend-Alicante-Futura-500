@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import type { Customer, CreateCustomerDto, UpdateCustomerDto, BusinessOption } from "@/lib/api";
 import { createCustomer, updateCustomer, deleteCustomer, getBusinessOptions } from "@/lib/api";
+import { getCustomersWithNextAppointment } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+
 
 export default function CustomersClient({ initialCustomers }: { initialCustomers: Customer[] }) {
   const { t } = useI18n();
@@ -33,21 +35,15 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
 
   // Carga clientes con próxima cita y lista de negocios de forma independiente
   useEffect(() => {
-    // ── Negocios ─────────────────────────────────────────────────────────────
-    async function fetchBusinesses() {
+    async function fetchData() {
       try {
-        const businessOptions = await getBusinessOptions();
-        setBusinesses(businessOptions);
-        if (businessOptions.length > 0) {
-          setCreateForm((p) => ({ ...p, businessId: businessOptions[0].id }));
-        }
-      } catch (err) {
-        console.error("Error al cargar negocios:", err);
-        setBusinessesError(true);
-      } finally {
-        setLoadingBusinesses(false);
-      }
-    }
+        const [customersRes, businessOptions] = await Promise.all([
+          getCustomersWithNextAppointment(),
+          getBusinessOptions(),
+        ]);
+      
+      setCustomers(customersRes);
+      setBusinesses(businessOptions);
 
     // ── Clientes ─────────────────────────────────────────────────────────────
     async function fetchCustomers() {
@@ -62,10 +58,11 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
       } catch (err) {
         console.error("Error al cargar clientes:", err);
       }
+    } catch (error) {
+      console.error("Error de carga", error);
     }
-
-    fetchBusinesses();
-    fetchCustomers();
+  }
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
