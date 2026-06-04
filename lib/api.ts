@@ -51,6 +51,12 @@ export interface UpdateCustomerDto {
   businessId?: number;
 }
 
+export async function getCustomersWithNextAppointment(): Promise<Customer[]> {
+  const res = await fetch(`${API_URL}/customers/with-next-appointment`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Error al obtener los clientes con citas");
+  return res.json();
+}
+
 // ─── Business & Services ────────────────────────────────────────────────────
 
 /**

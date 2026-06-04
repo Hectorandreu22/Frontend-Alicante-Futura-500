@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import type { Customer, CreateCustomerDto, UpdateCustomerDto, BusinessOption } from "@/lib/api";
 import { createCustomer, updateCustomer, deleteCustomer, getBusinessOptions } from "@/lib/api";
+import { getCustomersWithNextAppointment } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+
 
 export default function CustomersClient({ initialCustomers }: { initialCustomers: Customer[] }) {
   const { t } = useI18n();
@@ -32,10 +34,12 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
   // Carga clientes con próxima cita y lista de negocios en paralelo
   useEffect(() => {
     async function fetchData() {
-      const [customersRes, businessOptions] = await Promise.all([
-        fetch("/api/customers/with-next-appointment").then((r) => r.json() as Promise<Customer[]>),
-        getBusinessOptions(),
-      ]);
+      try {
+        const [customersRes, businessOptions] = await Promise.all([
+          getCustomersWithNextAppointment(),
+          getBusinessOptions(),
+        ]);
+      
       setCustomers(customersRes);
       setBusinesses(businessOptions);
 
@@ -43,7 +47,10 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
       if (businessOptions.length > 0) {
         setCreateForm((p) => ({ ...p, businessId: businessOptions[0].id }));
       }
+    } catch (error) {
+      console.error("Error de carga", error);
     }
+  }
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
