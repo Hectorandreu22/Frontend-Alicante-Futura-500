@@ -6,7 +6,6 @@ import { createCustomer, updateCustomer, deleteCustomer, getBusinessOptions } fr
 import { getCustomersWithNextAppointment } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 
-
 export default function CustomersClient({ initialCustomers }: { initialCustomers: Customer[] }) {
   const { t } = useI18n();
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
@@ -33,7 +32,7 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
     c.phone.includes(search)
   );
 
-  // Carga clientes con próxima cita y lista de negocios de forma independiente
+  // ── Clientes + negocios ──────────────────────────────────────────────────────
   useEffect(() => {
     async function fetchData() {
       try {
@@ -41,30 +40,20 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
           getCustomersWithNextAppointment(),
           getBusinessOptions(),
         ]);
-      
-      setCustomers(customersRes);
-      setBusinesses(businessOptions);
-
-    // ── Clientes ─────────────────────────────────────────────────────────────
-    useEffect(() => {
-  async function fetchCustomers() {
-    try {
-      const res = await fetch("/api/customers/with-next-appointment");
-      
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+        setCustomers(customersRes);
+        setBusinesses(businessOptions);
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
+        setBusinessesError(true);
+      } finally {
+        setLoadingBusinesses(false);
       }
-
-      const data = (await res.json()) as Customer[];
-      setCustomers(data);
-    } catch (err) {
-      console.error("Error al cargar clientes:", err);
     }
-  }
 
-  fetchCustomers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+    fetchData();
+  }, []);
+
+  // ─── Helpers ─────────────────────────────────────────────────────────────────
 
   function validatePhone(value: string): string {
     if (/[a-zA-Z]/.test(value)) return t("phoneError1");
@@ -122,55 +111,32 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
     finally { setLoadingDelete(false); }
   }
 
-  // ─── Selector de negocio reutilizable ────────────────────────────────────────
+  // ─── Selector de negocio ─────────────────────────────────────────────────────
 
-  function BusinessSelect({
-    value,
-    onChange,
-  }: {
-    value: number;
-    onChange: (id: number) => void;
-  }) {
+  function BusinessSelect({ value, onChange }: { value: number; onChange: (id: number) => void }) {
     if (loadingBusinesses) {
-      return (
-        <input
-          className="input"
-          type="text"
-          disabled
-          placeholder={t("loadingBusinesses")}
-          style={{ opacity: 0.6 }}
-        />
-      );
+      return <input className="input" type="text" disabled placeholder={t("loadingBusinesses")} style={{ opacity: 0.6 }} />;
     }
     if (businessesError || businesses.length === 0) {
       return (
         <input
-          className="input"
-          type="text"
-          disabled
+          className="input" type="text" disabled
           placeholder={businessesError ? "Error al cargar negocios" : "Sin negocios disponibles"}
           style={{ opacity: 0.6, borderColor: businessesError ? "var(--danger, #e53e3e)" : undefined }}
         />
       );
     }
     return (
-      <select
-        className="input"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        required
-      >
-        <option value={0} disabled>
-          {t("selectBusiness")}
-        </option>
+      <select className="input" value={value} onChange={(e) => onChange(Number(e.target.value))} required>
+        <option value={0} disabled>{t("selectBusiness")}</option>
         {businesses.map((b) => (
-          <option key={b.id} value={b.id}>
-            {b.name}
-          </option>
+          <option key={b.id} value={b.id}>{b.name}</option>
         ))}
       </select>
     );
   }
+
+  // ─── Render ───────────────────────────────────────────────────────────────────
 
   return (
     <div className="page-stack">
@@ -199,7 +165,6 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
                   onChange={(e) => { setCreateForm((p) => ({ ...p, phone: e.target.value })); setPhoneCreateError(validatePhone(e.target.value)); }} required />
                 {phoneCreateError && <p style={{ color: "red", fontSize: 12, marginTop: 4 }}>{phoneCreateError}</p>}
               </div>
-              {/* Selector real de negocio — reemplaza el input numérico anterior */}
               <BusinessSelect
                 value={createForm.businessId}
                 onChange={(id) => setCreateForm((p) => ({ ...p, businessId: id }))}
@@ -232,7 +197,6 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
                   onChange={(e) => { setEditForm((p) => ({ ...p, phone: e.target.value })); setPhoneEditError(validatePhone(e.target.value)); }} required />
                 {phoneEditError && <p style={{ color: "red", fontSize: 12, marginTop: 4 }}>{phoneEditError}</p>}
               </div>
-              {/* Selector real de negocio — reemplaza el input numérico anterior */}
               <BusinessSelect
                 value={editForm.businessId ?? 0}
                 onChange={(id) => setEditForm((p) => ({ ...p, businessId: id }))}
@@ -286,7 +250,6 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
               <p className="customer-name">{customer.name}</p>
               <p className="customer-meta">{customer.phone}</p>
               <p className="customer-meta">{customer.email}</p>
-              {/* Muestra el nombre del negocio si está disponible */}
               {customer.businessId > 0 && (
                 <p className="customer-meta" style={{ fontSize: 12, color: "var(--muted)" }}>
                   {businesses.find((b) => b.id === customer.businessId)?.name ?? `#${customer.businessId}`}
