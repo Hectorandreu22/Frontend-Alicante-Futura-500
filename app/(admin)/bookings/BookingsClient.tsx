@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { Booking, BookingStatus, Business, CreateBookingDto, Customer, UpdateBookingDto } from "@/lib/api";
+import type { Booking, BookingStatus, Business, BusinessService, CreateBookingDto, Customer, UpdateBookingDto } from "@/lib/api";
 import { createAppointment, deleteAppointment, getBusinesses, getCustomers, updateAppointment } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 
@@ -40,8 +40,8 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingBookingId, setEditingBookingId] = useState<number | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
-  const [createServices, setCreateServices] = useState<Service[]>([]);
-  const [editServices, setEditServices] = useState<Service[]>([]);
+  const [createServices, setCreateServices] = useState<BusinessService[]>([]);
+  const [editServices, setEditServices] = useState<BusinessService[]>([]);
 
   const filteredBookings = useMemo(() => {
     if (statusFilter === "all") return bookings;
@@ -116,7 +116,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
 
   async function handleCreateBusinessChange(businessId: number) {
   updateCreateForm("businessId", businessId);
-  updateCreateForm("serviceId", 0); // limpiar servicio anterior
+  updateCreateForm("serviceName", ""); // limpiar servicio anterior
   setCreateServices([]);
 
   if (businessId === 0) return;
@@ -131,7 +131,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
 
 async function handleEditBusinessChange(businessId: number) {
   updateEditForm("businessId", businessId);
-  updateEditForm("serviceId", 0);
+  updateEditForm("serviceName", "");
   setEditServices([]);
 
   if (businessId === 0) return;
