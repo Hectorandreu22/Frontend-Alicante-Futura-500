@@ -38,15 +38,11 @@ const Icons = {
       <rect x="6" y="11" width="6" height="6" rx="1" />
     </svg>
   ),
-<<<<<<< HEAD
-star: (
-  <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 1l2.5 5 5.5.8-4 3.9.9 5.5L9 13.5l-4.9 2.6.9-5.5L1 7.8l5.5-.8z" />
-  </svg>
-),
-
-=======
->>>>>>> main
+  star: (
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 1l2.5 5 5.5.8-4 3.9.9 5.5L9 13.5l-4.9 2.6.9-5.5L1 7.8l5.5-.8z" />
+    </svg>
+  ),
   settings: (
     <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="9" cy="9" r="2.5" />
@@ -93,32 +89,18 @@ export default function Sidebar() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const mainItems = [
-<<<<<<< HEAD
-    { label: t("navDashboard"),  href: "/dashboard",  icon: Icons.dashboard  },
-    { label: t("navBookings"),   href: "/bookings",   icon: Icons.bookings   },
-    { label: t("navCustomers"),  href: "/customers",  icon: Icons.customers  },
-    { label: t("navPayments"),   href: "/payments",   icon: Icons.payments   },
-    { label: t("navBusinesses"), href: "/businesses", icon: Icons.businesses },
-    { label: "Reseñas", href: "/reviews", icon: Icons.star },
-  ];
-
-  const settingsSubItems = [
-    { label: t("settingsProfile"),       href: "/settings/profile",       icon: Icons.profile   },
-    { label: t("settingsWorkspace"),     href: "/settings/workspace",     icon: Icons.workspace },
-    { label: t("settingsNotifications"), href: "/settings/notifications", icon: Icons.bell      },
-=======
     { label: t("navDashboard"), href: "/dashboard", icon: Icons.dashboard },
     { label: t("navBookings"), href: "/bookings", icon: Icons.bookings },
     { label: t("navCustomers"), href: "/customers", icon: Icons.customers },
     { label: t("navPayments"), href: "/payments", icon: Icons.payments },
     { label: t("navBusinesses"), href: "/businesses", icon: Icons.businesses },
+    { label: "Reseñas", href: "/reviews", icon: Icons.star },
   ];
 
   const settingsSubItems = [
     { label: t("settingsProfile"), href: "/settings/profile", icon: Icons.profile },
     { label: t("settingsWorkspace"), href: "/settings/workspace", icon: Icons.workspace },
     { label: t("settingsNotifications"), href: "/settings/notifications", icon: Icons.bell },
->>>>>>> main
   ];
 
   const isSettingsActive = pathname.startsWith("/settings");
@@ -131,10 +113,6 @@ export default function Sidebar() {
   return (
     <>
       <aside className="admin-sidebar">
-<<<<<<< HEAD
-        {/* Brand */}
-=======
->>>>>>> main
         <div className="admin-sidebar__brand">
           <div className="admin-sidebar__logo" aria-hidden="true">
             <div className="admin-sidebar__logo-inner" />
@@ -142,10 +120,6 @@ export default function Sidebar() {
           <span className="admin-sidebar__title">BookFlow</span>
         </div>
 
-<<<<<<< HEAD
-        {/* Main nav */}
-=======
->>>>>>> main
         <p className="admin-sidebar__section-label">{t("sectionMain")}</p>
         <nav className="admin-sidebar__nav">
           {mainItems.map((item) => {
@@ -163,118 +137,44 @@ export default function Sidebar() {
           })}
         </nav>
 
-<<<<<<< HEAD
-        {/* Bottom section */}
         <p className="admin-sidebar__section-label" style={{ marginTop: 24 }}>{t("sectionSystem")}</p>
         <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-
-          {/* Settings toggle */}
-=======
-        <p className="admin-sidebar__section-label" style={{ marginTop: 24 }}>{t("sectionSystem")}</p>
-        <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
->>>>>>> main
           <button
             type="button"
             onClick={() => setSettingsOpen((o) => !o)}
             className={`admin-sidebar__link${isSettingsActive ? " admin-sidebar__link--active" : ""}`}
-            style={{
-              width: "100%",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              textAlign: "left",
-              justifyContent: "space-between",
-            }}
+            style={{ width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left", justifyContent: "space-between" }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span className="sidebar-icon">{Icons.settings}</span>
               <span>{t("navSettings")}</span>
             </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                opacity: 0.5,
-                transition: "transform 0.2s ease",
-                transform: settingsOpen ? "rotate(180deg)" : "rotate(0deg)",
-                width: 14,
-                height: 14,
-              }}
-            >
+            <span style={{ display: "flex", alignItems: "center", opacity: 0.5, transition: "transform 0.2s ease", transform: settingsOpen ? "rotate(180deg)" : "rotate(0deg)", width: 14, height: 14 }}>
               {Icons.chevron}
             </span>
           </button>
 
-<<<<<<< HEAD
-          {/* Settings sub-panel */}
-=======
->>>>>>> main
           {settingsOpen && (
-            <div
-              style={{
-                margin: "2px 0 4px 16px",
-                padding: "6px 8px",
-                background: "var(--surface-2, color-mix(in srgb, var(--surface) 60%, var(--border)))",
-                borderRadius: 8,
-                border: "1px solid var(--border)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 1,
-              }}
-            >
+            <div style={{ margin: "2px 0 4px 16px", padding: "6px 8px", background: "var(--surface-2, color-mix(in srgb, var(--surface) 60%, var(--border)))", borderRadius: 8, border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 1 }}>
               {settingsSubItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`admin-sidebar__link${isActive ? " admin-sidebar__link--active" : ""}`}
-                    style={{ fontSize: 12.5, padding: "6px 10px", gap: 8 }}
-                  >
+                  <Link key={item.href} href={item.href} className={`admin-sidebar__link${isActive ? " admin-sidebar__link--active" : ""}`} style={{ fontSize: 12.5, padding: "6px 10px", gap: 8 }}>
                     <span className="sidebar-icon" style={{ width: 14, height: 14 }}>{item.icon}</span>
                     <span>{item.label}</span>
                   </Link>
                 );
               })}
-
-<<<<<<< HEAD
-              {/* Divider */}
               <div style={{ height: 1, background: "var(--border)", margin: "4px 2px" }} />
-
-              {/* Logout button */}
-=======
-              <div style={{ height: 1, background: "var(--border)", margin: "4px 2px" }} />
-
->>>>>>> main
-              <button
-                type="button"
-                onClick={() => setShowLogoutConfirm(true)}
-                className="admin-sidebar__link"
-                style={{
-                  fontSize: 12.5,
-                  padding: "6px 10px",
-                  gap: 8,
-                  width: "100%",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  color: "var(--danger, #e53e3e)",
-                }}
-              >
-                <span className="sidebar-icon" style={{ width: 14, height: 14, color: "var(--danger, #e53e3e)" }}>
-                  {Icons.logout}
-                </span>
+              <button type="button" onClick={() => setShowLogoutConfirm(true)} className="admin-sidebar__link"
+                style={{ fontSize: 12.5, padding: "6px 10px", gap: 8, width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left", color: "var(--danger, #e53e3e)" }}>
+                <span className="sidebar-icon" style={{ width: 14, height: 14, color: "var(--danger, #e53e3e)" }}>{Icons.logout}</span>
                 <span>{t("logoutLabel")}</span>
               </button>
             </div>
           )}
         </nav>
 
-<<<<<<< HEAD
-        {/* User footer */}
-=======
->>>>>>> main
         <div className="admin-sidebar__footer">
           <div className="admin-sidebar__user">
             <div className="admin-sidebar__avatar">A</div>
@@ -286,36 +186,19 @@ export default function Sidebar() {
         </div>
       </aside>
 
-<<<<<<< HEAD
-      {/* Logout confirm modal */}
-      {showLogoutConfirm && (
-        <div
-          className="modal-backdrop"
-          onClick={() => setShowLogoutConfirm(false)}
-        >
-=======
       {showLogoutConfirm && (
         <div className="modal-backdrop" onClick={() => setShowLogoutConfirm(false)}>
->>>>>>> main
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-icon">🚪</div>
             <p className="modal-title">{t("logoutConfirmTitle")}</p>
             <p className="modal-text">{t("logoutConfirmText")}</p>
             <div className="modal-actions">
-              <button type="button" className="secondary-btn" onClick={() => setShowLogoutConfirm(false)}>
-                {t("logoutCancel")}
-              </button>
-              <button type="button" className="danger-btn" onClick={handleLogout}>
-                {t("logoutConfirm")}
-              </button>
+              <button type="button" className="secondary-btn" onClick={() => setShowLogoutConfirm(false)}>{t("logoutCancel")}</button>
+              <button type="button" className="danger-btn" onClick={handleLogout}>{t("logoutConfirm")}</button>
             </div>
           </div>
         </div>
       )}
     </>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> main

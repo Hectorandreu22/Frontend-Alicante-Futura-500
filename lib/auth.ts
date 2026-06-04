@@ -1,9 +1,4 @@
-
-<<<<<<< HEAD
-export function getTokenPayload(): { email: string; sub: number } | null {
-=======
-export function getTokenPayload(): { email: string; sub: number, role: string } | null {
->>>>>>> main
+export function getTokenPayload(): { email: string; sub: number; role: string } | null {
   if (typeof window === "undefined") return null;
   const token = localStorage.getItem("token");
   if (!token) return null;
