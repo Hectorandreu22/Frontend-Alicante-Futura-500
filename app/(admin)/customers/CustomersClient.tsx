@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import type { Customer, CreateCustomerDto, UpdateCustomerDto, BusinessOption } from "@/lib/api";
 import { createCustomer, updateCustomer, deleteCustomer, getBusinessOptions } from "@/lib/api";
-import { getCustomersWithNextAppointment } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 
 
@@ -35,36 +34,41 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
 
   // Carga clientes con próxima cita y lista de negocios de forma independiente
   useEffect(() => {
-    async function fetchData() {
+    // ── Negocios ─────────────────────────────────────────────────────────────
+    async function fetchBusinesses() {
       try {
-        const [customersRes, businessOptions] = await Promise.all([
-          getCustomersWithNextAppointment(),
-          getBusinessOptions(),
-        ]);
-      
-      setCustomers(customersRes);
-      setBusinesses(businessOptions);
+        const businessOptions = await getBusinessOptions();
+        setBusinesses(businessOptions);
+        if (businessOptions.length > 0) {
+          setCreateForm((p) => ({ ...p, businessId: businessOptions[0].id }));
+        }
+      } catch (err) {
+        console.error("Error al cargar negocios:", err);
+        setBusinessesError(true);
+      } finally {
+        setLoadingBusinesses(false);
+      }
+    }
 
     // ── Clientes ─────────────────────────────────────────────────────────────
-    useEffect(() => {
-  async function fetchCustomers() {
-    try {
-      const res = await fetch("/api/customers/with-next-appointment");
-      
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+    async function fetchCustomers() {
+      try {
+        const data = await fetch("/api/customers/with-next-appointment").then(
+          (r) => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json() as Promise<Customer[]>;
+          }
+        );
+        setCustomers(data);
+      } catch (err) {
+        console.error("Error al cargar clientes:", err);
       }
-
-      const data = (await res.json()) as Customer[];
-      setCustomers(data);
-    } catch (err) {
-      console.error("Error al cargar clientes:", err);
     }
-  }
 
-  fetchCustomers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+    fetchBusinesses();
+    fetchCustomers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function validatePhone(value: string): string {
     if (/[a-zA-Z]/.test(value)) return t("phoneError1");
