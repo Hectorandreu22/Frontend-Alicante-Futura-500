@@ -3,7 +3,11 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n, flags, type Locale } from "@/lib/i18n";
+<<<<<<< HEAD
+import NotificationBell from "@/app/(admin)/Notification/NotificationBell";
+=======
 import { getAppointments } from "@/lib/api";
+>>>>>>> main
 
 const languages: { locale: Locale; label: string }[] = [
   { locale: "es", label: "Español" },
@@ -24,6 +28,10 @@ function decodeJwt(token: string): { email?: string; sub?: number; name?: string
   }
 }
 
+<<<<<<< HEAD
+// ── Icon helpers ──
+=======
+>>>>>>> main
 function IconSun() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -72,6 +80,8 @@ function IconExport() {
   );
 }
 
+<<<<<<< HEAD
+=======
 // ── Exportar PDF via ventana de impresión ─────────────────────────────────────
 
 function exportToPDF(rows: {
@@ -246,6 +256,7 @@ function exportToPDF(rows: {
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
+>>>>>>> main
 export default function Header() {
   const { t, locale, setLocale } = useI18n();
   const router = useRouter();
@@ -255,7 +266,10 @@ export default function Header() {
   const [userName, setUserName]       = useState<string | null>(null);
   const [userInitial, setUserInitial] = useState("A");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+<<<<<<< HEAD
+=======
   const [exporting, setExporting]     = useState(false);
+>>>>>>> main
   const langDropdownRef = useRef<HTMLDivElement>(null);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -303,6 +317,12 @@ export default function Header() {
     router.replace("/login");
   }
 
+<<<<<<< HEAD
+  return (
+    <>
+      <header className="admin-header">
+        {/* Left: title + search */}
+=======
   async function handleExport() {
     setExporting(true);
     try {
@@ -318,19 +338,31 @@ export default function Header() {
   return (
     <>
       <header className="admin-header">
+>>>>>>> main
         <div className="admin-header__left">
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span className="admin-header__title">{t("appTitle")}</span>
             <span className="admin-header__subtitle">{t("appSubtitle")}</span>
           </div>
 
+<<<<<<< HEAD
+          {/* Search bar */}
+=======
+>>>>>>> main
           <div className="admin-header__search">
             <span className="admin-header__search-icon"><IconSearch /></span>
             <input type="search" placeholder="Buscar..." aria-label="Buscar" />
           </div>
         </div>
 
+<<<<<<< HEAD
+        {/* Right: actions */}
         <div className="admin-header__actions">
+
+          {/* Calendar */}
+=======
+        <div className="admin-header__actions">
+>>>>>>> main
           <button
             type="button"
             className="admin-header__icon-btn"
@@ -341,6 +373,12 @@ export default function Header() {
             <IconCalendar />
           </button>
 
+<<<<<<< HEAD
+          {/* Notifications */}
+          <NotificationBell onViewAll={() => router.push("/settings/notifications")} />
+
+          {/* Dark mode */}
+=======
           <button
             type="button"
             className="admin-header__icon-btn"
@@ -350,6 +388,7 @@ export default function Header() {
             <IconBell />
           </button>
 
+>>>>>>> main
           <button
             type="button"
             className="admin-header__icon-btn"
@@ -360,6 +399,10 @@ export default function Header() {
             {dark ? <IconSun /> : <IconMoon />}
           </button>
 
+<<<<<<< HEAD
+          {/* Language */}
+=======
+>>>>>>> main
           <div ref={langDropdownRef} style={{ position: "relative" }}>
             <button
               type="button"
@@ -389,6 +432,16 @@ export default function Header() {
             )}
           </div>
 
+<<<<<<< HEAD
+          {/* CTA Export */}
+          <button
+            type="button"
+            className="header-cta-btn"
+            onClick={() => {/* exportar */}}
+          >
+            <IconExport />
+            {t("exportReport")}
+=======
           <button
             type="button"
             className="header-cta-btn"
@@ -397,12 +450,22 @@ export default function Header() {
           >
             <IconExport />
             {exporting ? "Generando..." : t("exportReport")}
+>>>>>>> main
           </button>
         </div>
       </header>
 
+<<<<<<< HEAD
+      {/* Logout confirm modal */}
+      {showLogoutConfirm && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+=======
       {showLogoutConfirm && (
         <div className="modal-backdrop" onClick={() => setShowLogoutConfirm(false)}>
+>>>>>>> main
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-icon">🚪</div>
             <p className="modal-title">¿Cerrar sesión?</p>
