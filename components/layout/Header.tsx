@@ -3,7 +3,11 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n, flags, type Locale } from "@/lib/i18n";
+<<<<<<< HEAD
 import NotificationBell from "@/app/(admin)/Notification/NotificationBell";
+=======
+import { getAppointments } from "@/lib/api";
+>>>>>>> main
 
 const languages: { locale: Locale; label: string }[] = [
   { locale: "es", label: "Español" },
@@ -24,7 +28,10 @@ function decodeJwt(token: string): { email?: string; sub?: number; name?: string
   }
 }
 
+<<<<<<< HEAD
 // ── Icon helpers ──
+=======
+>>>>>>> main
 function IconSun() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -73,6 +80,183 @@ function IconExport() {
   );
 }
 
+<<<<<<< HEAD
+=======
+// ── Exportar PDF via ventana de impresión ─────────────────────────────────────
+
+function exportToPDF(rows: {
+  id: number; date: string; time: string; status: string;
+  customerId: number; businessId: number; serviceName: string;
+}[]) {
+  const statusLabel = (s: string) =>
+    s === "pending" ? "Pendiente" : s === "confirmed" ? "Confirmada" : "Pagada";
+
+  const statusColor = (s: string) =>
+    s === "pending" ? "#854d0e" : s === "confirmed" ? "#15803d" : "#1e40af";
+
+  const statusBg = (s: string) =>
+    s === "pending" ? "#fef9c3" : s === "confirmed" ? "#dcfce7" : "#dbeafe";
+
+  const today = new Date().toLocaleDateString("es-ES", {
+    day: "2-digit", month: "long", year: "numeric",
+  });
+
+  const rows_html = rows.map(r => `
+    <tr>
+      <td>${r.id}</td>
+      <td>${r.date}</td>
+      <td>${r.time}</td>
+      <td>${r.serviceName}</td>
+      <td>${r.customerId}</td>
+      <td>${r.businessId}</td>
+      <td>
+        <span style="
+          display: inline-block;
+          padding: 2px 10px;
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 600;
+          background: ${statusBg(r.status)};
+          color: ${statusColor(r.status)};
+        ">${statusLabel(r.status)}</span>
+      </td>
+    </tr>
+  `).join("");
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8" />
+      <title>BookFlow — Informe de reservas</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          font-size: 13px;
+          color: #0f172a;
+          background: #fff;
+          padding: 40px 48px;
+        }
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 32px;
+          padding-bottom: 20px;
+          border-bottom: 2px solid #0f172a;
+        }
+        .brand { font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: #0f172a; }
+        .brand-sub { font-size: 12px; color: #64748b; margin-top: 3px; }
+        .meta { text-align: right; font-size: 12px; color: #64748b; line-height: 1.6; }
+        .meta strong { color: #0f172a; }
+        h2 {
+          font-size: 16px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          margin-bottom: 14px;
+          color: #0f172a;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 12px;
+        }
+        thead tr {
+          background: #f8fafc;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+          padding: 9px 12px;
+          text-align: left;
+          font-size: 10.5px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #64748b;
+        }
+        td {
+          padding: 10px 12px;
+          border-bottom: 1px solid #f1f5f9;
+          color: #0f172a;
+          vertical-align: middle;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #f8fafc; }
+        .footer {
+          margin-top: 32px;
+          padding-top: 16px;
+          border-top: 1px solid #e2e8f0;
+          font-size: 11px;
+          color: #94a3b8;
+          display: flex;
+          justify-content: space-between;
+        }
+        @media print {
+          body { padding: 20px 28px; }
+          @page { margin: 0; size: A4 landscape; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div>
+          <div class="brand">BookFlow</div>
+          <div class="brand-sub">Admin workspace</div>
+        </div>
+        <div class="meta">
+          <div><strong>Informe de reservas</strong></div>
+          <div>Generado el ${today}</div>
+          <div>Total: ${rows.length} reservas</div>
+        </div>
+      </div>
+
+      <h2>Listado completo de reservas</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Servicio</th>
+            <th>Cliente ID</th>
+            <th>Negocio ID</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows_html}
+        </tbody>
+      </table>
+
+      <div class="footer">
+        <span>BookFlow — Plataforma de gestión de reservas y cobros</span>
+        <span>${today}</span>
+      </div>
+
+      <script>
+        window.onload = function() {
+          window.print();
+          window.onafterprint = function() { window.close(); };
+        };
+      </script>
+    </body>
+    </html>
+  `;
+
+  const win = window.open("", "_blank");
+  if (!win) {
+    alert("Activa las ventanas emergentes para generar el PDF.");
+    return;
+  }
+  win.document.write(html);
+  win.document.close();
+}
+
+// ── Componente ────────────────────────────────────────────────────────────────
+
+>>>>>>> main
 export default function Header() {
   const { t, locale, setLocale } = useI18n();
   const router = useRouter();
@@ -82,6 +266,10 @@ export default function Header() {
   const [userName, setUserName]       = useState<string | null>(null);
   const [userInitial, setUserInitial] = useState("A");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+<<<<<<< HEAD
+=======
+  const [exporting, setExporting]     = useState(false);
+>>>>>>> main
   const langDropdownRef = useRef<HTMLDivElement>(null);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -129,27 +317,52 @@ export default function Header() {
     router.replace("/login");
   }
 
+<<<<<<< HEAD
   return (
     <>
       <header className="admin-header">
         {/* Left: title + search */}
+=======
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const data = await getAppointments();
+      exportToPDF(data);
+    } catch {
+      alert("No se pudo obtener los datos. Comprueba que el backend está activo.");
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  return (
+    <>
+      <header className="admin-header">
+>>>>>>> main
         <div className="admin-header__left">
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span className="admin-header__title">{t("appTitle")}</span>
             <span className="admin-header__subtitle">{t("appSubtitle")}</span>
           </div>
 
+<<<<<<< HEAD
           {/* Search bar */}
+=======
+>>>>>>> main
           <div className="admin-header__search">
             <span className="admin-header__search-icon"><IconSearch /></span>
             <input type="search" placeholder="Buscar..." aria-label="Buscar" />
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Right: actions */}
         <div className="admin-header__actions">
 
           {/* Calendar */}
+=======
+        <div className="admin-header__actions">
+>>>>>>> main
           <button
             type="button"
             className="admin-header__icon-btn"
@@ -160,10 +373,22 @@ export default function Header() {
             <IconCalendar />
           </button>
 
+<<<<<<< HEAD
           {/* Notifications */}
           <NotificationBell onViewAll={() => router.push("/settings/notifications")} />
 
           {/* Dark mode */}
+=======
+          <button
+            type="button"
+            className="admin-header__icon-btn"
+            title="Notificaciones"
+            aria-label="Notificaciones"
+          >
+            <IconBell />
+          </button>
+
+>>>>>>> main
           <button
             type="button"
             className="admin-header__icon-btn"
@@ -174,7 +399,10 @@ export default function Header() {
             {dark ? <IconSun /> : <IconMoon />}
           </button>
 
+<<<<<<< HEAD
           {/* Language */}
+=======
+>>>>>>> main
           <div ref={langDropdownRef} style={{ position: "relative" }}>
             <button
               type="button"
@@ -204,6 +432,7 @@ export default function Header() {
             )}
           </div>
 
+<<<<<<< HEAD
           {/* CTA Export */}
           <button
             type="button"
@@ -212,16 +441,31 @@ export default function Header() {
           >
             <IconExport />
             {t("exportReport")}
+=======
+          <button
+            type="button"
+            className="header-cta-btn"
+            onClick={handleExport}
+            disabled={exporting}
+          >
+            <IconExport />
+            {exporting ? "Generando..." : t("exportReport")}
+>>>>>>> main
           </button>
         </div>
       </header>
 
+<<<<<<< HEAD
       {/* Logout confirm modal */}
       {showLogoutConfirm && (
         <div
           className="modal-backdrop"
           onClick={() => setShowLogoutConfirm(false)}
         >
+=======
+      {showLogoutConfirm && (
+        <div className="modal-backdrop" onClick={() => setShowLogoutConfirm(false)}>
+>>>>>>> main
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-icon">🚪</div>
             <p className="modal-title">¿Cerrar sesión?</p>

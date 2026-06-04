@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+<<<<<<< HEAD
+=======
+import { getTokenPayload } from "@/lib/auth";
+>>>>>>> main
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,7 +44,17 @@ export default function LoginPage() {
       }
 
       localStorage.setItem("token", data.access_token);
+<<<<<<< HEAD
       router.push("/dashboard");
+=======
+      const payload = getTokenPayload();
+      if (payload?.role == "admin") {
+        router.push("/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
+  
+>>>>>>> main
       router.refresh();
 
     } catch {
