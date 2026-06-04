@@ -46,25 +46,25 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
       setBusinesses(businessOptions);
 
     // ── Clientes ─────────────────────────────────────────────────────────────
-    async function fetchCustomers() {
-      try {
-        const data = await fetch("/api/customers/with-next-appointment").then(
-          (r) => {
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            return r.json() as Promise<Customer[]>;
-          }
-        );
-        setCustomers(data);
-      } catch (err) {
-        console.error("Error al cargar clientes:", err);
+    useEffect(() => {
+  async function fetchCustomers() {
+    try {
+      const res = await fetch("/api/customers/with-next-appointment");
+      
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
       }
-    } catch (error) {
-      console.error("Error de carga", error);
+
+      const data = (await res.json()) as Customer[];
+      setCustomers(data);
+    } catch (err) {
+      console.error("Error al cargar clientes:", err);
     }
   }
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+  fetchCustomers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
   function validatePhone(value: string): string {
     if (/[a-zA-Z]/.test(value)) return t("phoneError1");
