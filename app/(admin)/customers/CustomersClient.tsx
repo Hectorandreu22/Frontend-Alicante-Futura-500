@@ -9,11 +9,8 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
   const { t } = useI18n();
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
-<<<<<<< HEAD
-=======
   const [loadingBusinesses, setLoadingBusinesses] = useState(true);
   const [businessesError, setBusinessesError] = useState(false);
->>>>>>> main
   const [search, setSearch] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,30 +31,7 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
     c.phone.includes(search)
   );
 
-<<<<<<< HEAD
-  // Carga clientes con próxima cita y lista de negocios en paralelo
   useEffect(() => {
-    async function fetchData() {
-      const [customersRes, businessOptions] = await Promise.all([
-        fetch("/api/customers/with-next-appointment").then((r) => r.json() as Promise<Customer[]>),
-        getBusinessOptions(),
-      ]);
-      setCustomers(customersRes);
-      setBusinesses(businessOptions);
-
-      // Inicializar businessId del formulario de creación al primer negocio disponible
-      if (businessOptions.length > 0) {
-        setCreateForm((p) => ({ ...p, businessId: businessOptions[0].id }));
-      }
-    }
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-=======
-  // ── Clientes + negocios ──────────────────────────────────────────────────────
-  useEffect(() => {
-    // ── Negocios ─────────────────────────────────────────────────────────────
     async function fetchBusinesses() {
       try {
         const businessOptions = await getBusinessOptions();
@@ -73,7 +47,6 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
       }
     }
 
-    // ── Clientes ─────────────────────────────────────────────────────────────
     async function fetchCustomers() {
       try {
         const data = await fetch("/api/customers/with-next-appointment").then(
@@ -93,9 +66,6 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ─── Helpers ─────────────────────────────────────────────────────────────────
-
->>>>>>> main
   function validatePhone(value: string): string {
     if (/[a-zA-Z]/.test(value)) return t("phoneError1");
     const digits = value.replace(/[\s\+\-]/g, "").length;
@@ -152,27 +122,6 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
     finally { setLoadingDelete(false); }
   }
 
-<<<<<<< HEAD
-  // ─── Selector de negocio reutilizable ────────────────────────────────────────
-
-  function BusinessSelect({
-    value,
-    onChange,
-  }: {
-    value: number;
-    onChange: (id: number) => void;
-  }) {
-    if (businesses.length === 0) {
-      return (
-        <input
-          className="input"
-          type="text"
-          disabled
-          placeholder={t("loadingBusinesses")}
-          style={{ opacity: 0.6 }}
-=======
-  // ─── Selector de negocio ─────────────────────────────────────────────────────
-
   function BusinessSelect({ value, onChange }: { value: number; onChange: (id: number) => void }) {
     if (loadingBusinesses) {
       return <input className="input" type="text" disabled placeholder={t("loadingBusinesses")} style={{ opacity: 0.6 }} />;
@@ -183,41 +132,19 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
           className="input" type="text" disabled
           placeholder={businessesError ? "Error al cargar negocios" : "Sin negocios disponibles"}
           style={{ opacity: 0.6, borderColor: businessesError ? "var(--danger, #e53e3e)" : undefined }}
->>>>>>> main
         />
       );
     }
     return (
-<<<<<<< HEAD
-      <select
-        className="input"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        required
-      >
-        <option value={0} disabled>
-          {t("selectBusiness")}
-        </option>
-        {businesses.map((b) => (
-          <option key={b.id} value={b.id}>
-            {b.name}
-          </option>
-=======
       <select className="input" value={value} onChange={(e) => onChange(Number(e.target.value))} required>
         <option value={0} disabled>{t("selectBusiness")}</option>
         {businesses.map((b) => (
           <option key={b.id} value={b.id}>{b.name}</option>
->>>>>>> main
         ))}
       </select>
     );
   }
 
-<<<<<<< HEAD
-=======
-  // ─── Render ───────────────────────────────────────────────────────────────────
-
->>>>>>> main
   return (
     <div className="page-stack">
       <section className="page-hero">
@@ -245,10 +172,6 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
                   onChange={(e) => { setCreateForm((p) => ({ ...p, phone: e.target.value })); setPhoneCreateError(validatePhone(e.target.value)); }} required />
                 {phoneCreateError && <p style={{ color: "red", fontSize: 12, marginTop: 4 }}>{phoneCreateError}</p>}
               </div>
-<<<<<<< HEAD
-              {/* Selector real de negocio — reemplaza el input numérico anterior */}
-=======
->>>>>>> main
               <BusinessSelect
                 value={createForm.businessId}
                 onChange={(id) => setCreateForm((p) => ({ ...p, businessId: id }))}
@@ -281,10 +204,6 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
                   onChange={(e) => { setEditForm((p) => ({ ...p, phone: e.target.value })); setPhoneEditError(validatePhone(e.target.value)); }} required />
                 {phoneEditError && <p style={{ color: "red", fontSize: 12, marginTop: 4 }}>{phoneEditError}</p>}
               </div>
-<<<<<<< HEAD
-              {/* Selector real de negocio — reemplaza el input numérico anterior */}
-=======
->>>>>>> main
               <BusinessSelect
                 value={editForm.businessId ?? 0}
                 onChange={(id) => setEditForm((p) => ({ ...p, businessId: id }))}
@@ -338,10 +257,6 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
               <p className="customer-name">{customer.name}</p>
               <p className="customer-meta">{customer.phone}</p>
               <p className="customer-meta">{customer.email}</p>
-<<<<<<< HEAD
-              {/* Muestra el nombre del negocio si está disponible */}
-=======
->>>>>>> main
               {customer.businessId > 0 && (
                 <p className="customer-meta" style={{ fontSize: 12, color: "var(--muted)" }}>
                   {businesses.find((b) => b.id === customer.businessId)?.name ?? `#${customer.businessId}`}

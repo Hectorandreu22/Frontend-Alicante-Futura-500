@@ -3,10 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-<<<<<<< HEAD
-=======
 import { getTokenPayload } from "@/lib/auth";
->>>>>>> main
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,17 +41,12 @@ export default function LoginPage() {
       }
 
       localStorage.setItem("token", data.access_token);
-<<<<<<< HEAD
-      router.push("/dashboard");
-=======
       const payload = getTokenPayload();
       if (payload?.role == "admin") {
         router.push("/dashboard");
       } else {
         router.push("/dashboard");
       }
-  
->>>>>>> main
       router.refresh();
 
     } catch {
@@ -76,9 +68,7 @@ export default function LoginPage() {
 
         <div className="auth-tabs">
           <span className="auth-tab auth-tab--active">Iniciar sesión</span>
-          <Link href="/register" className="auth-tab">
-            Registro
-          </Link>
+          <Link href="/register" className="auth-tab">Registro</Link>
         </div>
 
         <h2 className="auth-heading">Bienvenido de nuevo</h2>
@@ -87,44 +77,26 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="auth-field">
             <label className="auth-label">Email</label>
-            <input
-              className="input"
-              type="email"
-              placeholder="tu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <input className="input" type="email" placeholder="tu@email.com" value={email}
+              onChange={(e) => setEmail(e.target.value)} required />
           </div>
 
           <div className="auth-field">
             <label className="auth-label">Contraseña</label>
-            <input
-              className="input"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <input className="input" type="password" placeholder="••••••••" value={password}
+              onChange={(e) => setPassword(e.target.value)} required />
           </div>
 
           {error && <p className="message-error">{error}</p>}
 
-          <button
-            className="primary-btn auth-submit-btn"
-            type="submit"
-            disabled={loading}
-          >
+          <button className="primary-btn auth-submit-btn" type="submit" disabled={loading}>
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
 
         <p className="auth-footer">
           ¿No tienes cuenta?{" "}
-          <Link href="/register" className="auth-link">
-            Regístrate
-          </Link>
+          <Link href="/register" className="auth-link">Regístrate</Link>
         </p>
       </div>
     </div>
