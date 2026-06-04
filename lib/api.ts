@@ -201,7 +201,9 @@ export async function getBusinesses(): Promise<Business[]> {
  * para usar en selectores sin cargar los servicios completos.
  */
 export async function getBusinessOptions(): Promise<BusinessOption[]> {
-  const res = await fetch(`${API_URL}/businesses`, { cache: "no-store" });
+  // Usamos la ruta API de Next.js (/api/businesses) para evitar problemas de CORS
+  // cuando esta función se llama desde el cliente (puerto 3001 → puerto 3000).
+  const res = await fetch("/api/businesses", { cache: "no-store" });
   if (!res.ok) throw new Error("Error al obtener los negocios");
   const businesses: Business[] = await res.json();
   return businesses.map(({ id, name }) => ({ id, name }));
