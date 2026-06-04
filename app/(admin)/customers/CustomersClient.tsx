@@ -9,6 +9,8 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
   const { t } = useI18n();
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
+  const [loadingBusinesses, setLoadingBusinesses] = useState(true);
+  const [businessesError, setBusinessesError] = useState(false);
   const [search, setSearch] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,22 +31,41 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
     c.phone.includes(search)
   );
 
-  // Carga clientes con próxima cita y lista de negocios en paralelo
+  // Carga clientes con próxima cita y lista de negocios de forma independiente
   useEffect(() => {
-    async function fetchData() {
-      const [customersRes, businessOptions] = await Promise.all([
-        fetch("/api/customers/with-next-appointment").then((r) => r.json() as Promise<Customer[]>),
-        getBusinessOptions(),
-      ]);
-      setCustomers(customersRes);
-      setBusinesses(businessOptions);
-
-      // Inicializar businessId del formulario de creación al primer negocio disponible
-      if (businessOptions.length > 0) {
-        setCreateForm((p) => ({ ...p, businessId: businessOptions[0].id }));
+    // ── Negocios ─────────────────────────────────────────────────────────────
+    async function fetchBusinesses() {
+      try {
+        const businessOptions = await getBusinessOptions();
+        setBusinesses(businessOptions);
+        if (businessOptions.length > 0) {
+          setCreateForm((p) => ({ ...p, businessId: businessOptions[0].id }));
+        }
+      } catch (err) {
+        console.error("Error al cargar negocios:", err);
+        setBusinessesError(true);
+      } finally {
+        setLoadingBusinesses(false);
       }
     }
-    fetchData();
+
+    // ── Clientes ─────────────────────────────────────────────────────────────
+    async function fetchCustomers() {
+      try {
+        const data = await fetch("/api/customers/with-next-appointment").then(
+          (r) => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json() as Promise<Customer[]>;
+          }
+        );
+        setCustomers(data);
+      } catch (err) {
+        console.error("Error al cargar clientes:", err);
+      }
+    }
+
+    fetchBusinesses();
+    fetchCustomers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -113,7 +134,7 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
     value: number;
     onChange: (id: number) => void;
   }) {
-    if (businesses.length === 0) {
+    if (loadingBusinesses) {
       return (
         <input
           className="input"
@@ -121,6 +142,17 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
           disabled
           placeholder={t("loadingBusinesses")}
           style={{ opacity: 0.6 }}
+        />
+      );
+    }
+    if (businessesError || businesses.length === 0) {
+      return (
+        <input
+          className="input"
+          type="text"
+          disabled
+          placeholder={businessesError ? "Error al cargar negocios" : "Sin negocios disponibles"}
+          style={{ opacity: 0.6, borderColor: businessesError ? "var(--danger, #e53e3e)" : undefined }}
         />
       );
     }
