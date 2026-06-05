@@ -1,8 +1,33 @@
 "use client";
 
 import { useI18n } from "@/lib/i18n";
+import { useEffect, useState } from "react";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 
 type DashboardBookingStatus = "pending" | "confirmed" | "paid";
+
+type Appointment = {
+  id: number;
+  date: string;
+  time: string;
+  status: string;
+  serviceName?: string;
+  customer?: { name: string };
+  businessId: number;
+};
+
+type Payment = {
+  id: number;
+  amount: number;
+  status: string;
+  createdAt: string;
+};
+
+type Customer = {
+  id: number;
+  createdAt?: string;
+};
 
 type DashboardBooking = {
   time: string;
@@ -12,15 +37,6 @@ type DashboardBooking = {
   status: DashboardBookingStatus;
 };
 
-const bookings: DashboardBooking[] = [
-  { time: "09:00", client: "María López", business: "Peluquería Nova", service: "Corte + peinado", status: "confirmed" },
-  { time: "10:30", client: "Carlos Pérez", business: "Restaurante Marea", service: "Reserva para 4", status: "pending" },
-  { time: "12:00", client: "Lucía Sánchez", business: "Barber Studio", service: "Corte caballero", status: "paid" },
-];
-
-const revenueData = [420, 560, 480, 710, 650, 820];
-const monthKeys = ["Ene", "Feb", "Mar", "Abr", "May", "Jun"];
-
 function Badge({ status, t }: { status: DashboardBookingStatus; t: (k: string) => string }) {
   const label =
     status === "pending" ? t("statusPending") :
@@ -29,23 +45,23 @@ function Badge({ status, t }: { status: DashboardBookingStatus; t: (k: string) =
   return <span className={`badge badge--${status}`}>{label}</span>;
 }
 
-function MiniLineChart() {
-  const max = Math.max(...revenueData);
+function MiniLineChart({ data }: { data: number[] }) {
+  const max = Math.max(...data, 1);
   const w = 240, h = 80, pad = 12;
-  const xStep = (w - pad * 2) / (revenueData.length - 1);
-  const points = revenueData.map((v, i) => {
+  const xStep = (w - pad * 2) / Math.max(data.length - 1, 1);
+  const points = data.map((v, i) => {
     const x = pad + i * xStep;
     const y = pad + (1 - v / max) * (h - pad * 2);
     return `${x},${y}`;
   }).join(" ");
   const areaPoints = [
     `${pad},${h - pad}`,
-    ...revenueData.map((v, i) => {
+    ...data.map((v, i) => {
       const x = pad + i * xStep;
       const y = pad + (1 - v / max) * (h - pad * 2);
       return `${x},${y}`;
     }),
-    `${pad + (revenueData.length - 1) * xStep},${h - pad}`,
+    `${pad + (data.length - 1) * xStep},${h - pad}`,
   ].join(" ");
   return (
     <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: 80, overflow: "visible" }}>
@@ -57,7 +73,7 @@ function MiniLineChart() {
       </defs>
       <polygon points={areaPoints} fill="url(#lineGrad)" />
       <polyline points={points} fill="none" stroke="var(--brand)" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
-      {revenueData.map((v, i) => {
+      {data.map((v, i) => {
         const x = pad + i * xStep;
         const y = pad + (1 - v / max) * (h - pad * 2);
         return <circle key={i} cx={x} cy={y} r="3.5" fill="var(--brand)" stroke="var(--surface)" strokeWidth="2" />;
@@ -66,22 +82,22 @@ function MiniLineChart() {
   );
 }
 
-function MiniBarChart() {
-  const max = Math.max(...revenueData);
+function MiniBarChart({ data }: { data: number[] }) {
+  const max = Math.max(...data, 1);
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 80 }}>
-      {revenueData.map((v, i) => (
+      {data.map((v, i) => (
         <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, height: "100%" }}>
           <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "flex-end" }}>
             <div style={{
               width: "100%",
               height: `${(v / max) * 100}%`,
-              background: i === revenueData.length - 1 ? "var(--brand)" : "var(--brand-light)",
+              background: i === data.length - 1 ? "var(--brand)" : "var(--brand-light)",
               borderRadius: "4px 4px 0 0",
               minHeight: 6,
               transition: "height 0.4s ease",
               border: "1px solid",
-              borderColor: i === revenueData.length - 1 ? "var(--brand)" : "var(--border)",
+              borderColor: i === data.length - 1 ? "var(--brand)" : "var(--border)",
             }} />
           </div>
         </div>
@@ -92,6 +108,85 @@ function MiniBarChart() {
 
 export default function DashboardPage() {
   const { t } = useI18n();
+
+  const [upcomingBookings, setUpcomingBookings] = useState<DashboardBooking[]>([]);
+  const [nextBooking, setNextBooking] = useState<DashboardBooking | null>(null);
+  const [kpiBookingsToday, setKpiBookingsToday] = useState(0);
+  const [kpiRevenue, setKpiRevenue] = useState(0);
+  const [kpiPending, setKpiPending] = useState(0);
+  const [kpiActiveClients, setKpiActiveClients] = useState(0);
+  const [revenueData, setRevenueData] = useState<number[]>([0, 0, 0, 0, 0, 0]);
+  const [monthKeys, setMonthKeys] = useState<string[]>(["", "", "", "", "", ""]);
+
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+
+    // Citas
+    fetch(`${API_URL}/appointments`)
+      .then((r) => r.json())
+      .then((appointments: Appointment[]) => {
+        // KPI reservas hoy
+        const todayAppts = appointments.filter((a) => a.date === today);
+        setKpiBookingsToday(todayAppts.length);
+
+        // Pendientes
+        const pending = appointments.filter((a) => a.status === "pending");
+        setKpiPending(pending.length);
+
+        // Próximas reservas (futuras o hoy, confirmadas/pendientes, primeras 5)
+        const upcoming = appointments
+          .filter((a) => a.date >= today && (a.status === "pending" || a.status === "confirmed"))
+          .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+          .slice(0, 5)
+          .map((a) => ({
+            time: a.time,
+            client: a.customer?.name ?? `Cliente ${a.id}`,
+            business: `Negocio ${a.businessId}`,
+            service: a.serviceName ?? "Servicio",
+            status: (a.status === "confirmed" ? "confirmed" : "pending") as DashboardBookingStatus,
+          }));
+        setUpcomingBookings(upcoming);
+        if (upcoming.length > 0) setNextBooking(upcoming[0]);
+      })
+      .catch(console.error);
+
+    // Pagos
+    fetch(`${API_URL}/payments`)
+      .then((r) => r.json())
+      .then((payments: Payment[]) => {
+        // KPI cobrado hoy
+        const todayPaid = payments
+          .filter((p) => (p.status === "completed" || p.status === "paid") && p.createdAt?.startsWith(today))
+          .reduce((acc, p) => acc + Number(p.amount), 0);
+        setKpiRevenue(todayPaid);
+
+        // Ingresos últimos 6 meses
+        const now = new Date();
+        const months: number[] = [];
+        const labels: string[] = [];
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          labels.push(d.toLocaleString("es-ES", { month: "short" }));
+          const total = payments
+            .filter((p) => {
+              if (!p.createdAt) return false;
+              const pd = new Date(p.createdAt);
+              return pd.getFullYear() === d.getFullYear() && pd.getMonth() === d.getMonth() && (p.status === "completed" || p.status === "paid");
+            })
+            .reduce((acc, p) => acc + Number(p.amount), 0);
+          months.push(total);
+        }
+        setRevenueData(months);
+        setMonthKeys(labels);
+      })
+      .catch(console.error);
+
+    // Clientes activos
+    fetch(`${API_URL}/customers`)
+      .then((r) => r.json())
+      .then((customers: Customer[]) => setKpiActiveClients(customers.length))
+      .catch(console.error);
+  }, []);
 
   return (
     <div className="page-stack">
@@ -105,22 +200,22 @@ export default function DashboardPage() {
       <section className="kpi-grid">
         <div className="kpi-card">
           <p className="kpi-card__label">{t("kpiBookingsToday")}</p>
-          <h3 className="kpi-card__value">24</h3>
+          <h3 className="kpi-card__value">{kpiBookingsToday}</h3>
           <p className="kpi-card__meta kpi-card__meta--positive">{t("kpiBookingsTodayMeta")}</p>
         </div>
         <div className="kpi-card">
           <p className="kpi-card__label">{t("kpiRevenue")}</p>
-          <h3 className="kpi-card__value">820€</h3>
+          <h3 className="kpi-card__value">{kpiRevenue.toFixed(0)}€</h3>
           <p className="kpi-card__meta">{t("kpiRevenueMeta")}</p>
         </div>
         <div className="kpi-card">
           <p className="kpi-card__label">{t("kpiPending")}</p>
-          <h3 className="kpi-card__value">6</h3>
+          <h3 className="kpi-card__value">{kpiPending}</h3>
           <p className="kpi-card__meta kpi-card__meta--warning">{t("kpiPendingMeta")}</p>
         </div>
         <div className="kpi-card">
           <p className="kpi-card__label">{t("kpiActiveClients")}</p>
-          <h3 className="kpi-card__value">214</h3>
+          <h3 className="kpi-card__value">{kpiActiveClients}</h3>
           <p className="kpi-card__meta">{t("kpiActiveClientsMeta")}</p>
         </div>
       </section>
@@ -143,19 +238,23 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((booking, index) => (
-                  <tr key={index}>
-                    <td>
-                      <span style={{ fontWeight: 700, fontFamily: "'DM Mono', monospace", fontSize: 13, color: "var(--brand)", background: "var(--brand-soft)", padding: "3px 8px", borderRadius: 6 }}>
-                        {booking.time}
-                      </span>
-                    </td>
-                    <td style={{ fontWeight: 600, color: "var(--text)" }}>{booking.client}</td>
-                    <td style={{ color: "var(--muted)" }}>{booking.business}</td>
-                    <td style={{ color: "var(--text-2)" }}>{booking.service}</td>
-                    <td><Badge status={booking.status} t={t} /></td>
-                  </tr>
-                ))}
+                {upcomingBookings.length === 0 ? (
+                  <tr><td colSpan={5} style={{ textAlign: "center", padding: 24, color: "var(--muted)" }}>No hay próximas reservas</td></tr>
+                ) : (
+                  upcomingBookings.map((booking, index) => (
+                    <tr key={index}>
+                      <td>
+                        <span style={{ fontWeight: 700, fontFamily: "'DM Mono', monospace", fontSize: 13, color: "var(--brand)", background: "var(--brand-soft)", padding: "3px 8px", borderRadius: 6 }}>
+                          {booking.time}
+                        </span>
+                      </td>
+                      <td style={{ fontWeight: 600, color: "var(--text)" }}>{booking.client}</td>
+                      <td style={{ color: "var(--muted)" }}>{booking.business}</td>
+                      <td style={{ color: "var(--text-2)" }}>{booking.service}</td>
+                      <td><Badge status={booking.status} t={t} /></td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -170,18 +269,18 @@ export default function DashboardPage() {
                 <p style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
                   {t("accumulatedTrend")}
                 </p>
-                <MiniLineChart />
+                <MiniLineChart data={revenueData} />
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
-                  {monthKeys.map((m) => <span key={m} style={{ fontSize: 10.5, color: "var(--muted-2)", fontWeight: 600 }}>{m}</span>)}
+                  {monthKeys.map((m, i) => <span key={i} style={{ fontSize: 10.5, color: "var(--muted-2)", fontWeight: 600 }}>{m}</span>)}
                 </div>
               </div>
               <div>
                 <p style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
                   {t("byService")}
                 </p>
-                <MiniBarChart />
+                <MiniBarChart data={revenueData} />
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
-                  {monthKeys.map((m) => <span key={m} style={{ fontSize: 10.5, color: "var(--muted-2)", fontWeight: 600 }}>{m}</span>)}
+                  {monthKeys.map((m, i) => <span key={i} style={{ fontSize: 10.5, color: "var(--muted-2)", fontWeight: 600 }}>{m}</span>)}
                 </div>
               </div>
             </div>
@@ -191,13 +290,19 @@ export default function DashboardPage() {
         <div className="info-stack">
           <div className="info-box">
             <p className="info-box__eyebrow">{t("nextBooking")}</p>
-            <p className="info-box__title">María López</p>
-            <p className="info-box__text">09:00 · Peluquería Nova</p>
-            <div style={{ marginTop: 12 }}>
-              <span style={{ fontSize: 11.5, fontWeight: 700, color: "var(--brand)", background: "var(--brand-soft)", padding: "3px 10px", borderRadius: 999 }}>
-                En 30 min
-              </span>
-            </div>
+            {nextBooking ? (
+              <>
+                <p className="info-box__title">{nextBooking.client}</p>
+                <p className="info-box__text">{nextBooking.time} · {nextBooking.business}</p>
+                <div style={{ marginTop: 12 }}>
+                  <span style={{ fontSize: 11.5, fontWeight: 700, color: "var(--brand)", background: "var(--brand-soft)", padding: "3px 10px", borderRadius: 999 }}>
+                    {nextBooking.service}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <p className="info-box__text">No hay reservas próximas</p>
+            )}
           </div>
 
           <div className="info-box">
