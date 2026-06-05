@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n, flags, type Locale } from "@/lib/i18n";
 import { getAppointments } from "@/lib/api";
+import NotificationBell from "@/app/(admin)/Notification/NotificationBell";
 
 const languages: { locale: Locale; label: string }[] = [
   { locale: "es", label: "Español" },
@@ -44,14 +45,6 @@ function IconCalendar() {
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <rect x="1" y="3" width="14" height="12" rx="2" />
       <path d="M5 1v4M11 1v4M1 7h14" />
-    </svg>
-  );
-}
-function IconBell() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 1a5 5 0 0 1 5 5c0 5 1.5 6 1.5 6h-13S3 11 3 6a5 5 0 0 1 5-5z" />
-      <path d="M6.5 13a1.5 1.5 0 0 0 3 0" />
     </svg>
   );
 }
@@ -185,9 +178,9 @@ export default function Header() {
           <button type="button" className="admin-header__icon-btn" title="Calendario" aria-label="Abrir calendario" onClick={() => router.push("/calendar")}>
             <IconCalendar />
           </button>
-          <button type="button" className="admin-header__icon-btn" title="Notificaciones" aria-label="Notificaciones">
-            <IconBell />
-          </button>
+
+          <NotificationBell onViewAll={() => router.push("/settings/notifications")} />
+
           <button type="button" className="admin-header__icon-btn" onClick={toggleDark} title={dark ? "Modo claro" : "Modo oscuro"} aria-label={dark ? "Activar modo claro" : "Activar modo oscuro"}>
             {dark ? <IconSun /> : <IconMoon />}
           </button>

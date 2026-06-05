@@ -225,7 +225,7 @@ export default function DashboardPage() {
           <div className="section-card">
             <div className="panel-title-row">
               <h3 className="panel-title">{t("upcomingBookings")}</h3>
-              <button className="panel-subtle-link" type="button">{t("viewAll")}</button>
+              <button className="panel-subtle-link" type="button" onClick={() => window.location.href = "/bookings"}>{t("viewAll")}</button>
             </div>
             <table className="data-table">
               <thead>
