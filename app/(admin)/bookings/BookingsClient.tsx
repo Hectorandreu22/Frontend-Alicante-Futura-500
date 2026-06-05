@@ -46,10 +46,15 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
     return bookings.filter((b) => b.status === statusFilter);
   }, [bookings, statusFilter]);
 
-  const totalCount = bookings.length;
-  const pendingCount = bookings.filter((b) => b.status === "pending").length;
+  const totalCount     = bookings.length;
+  const pendingCount   = bookings.filter((b) => b.status === "pending").length;
   const confirmedCount = bookings.filter((b) => b.status === "confirmed").length;
-  const paidCount = bookings.filter((b) => b.status === "paid").length;
+  const paidCount      = bookings.filter((b) => b.status === "paid").length;
+
+  // Servicios del negocio seleccionado en cada formulario
+  function getServicesForBusiness(businessId: number) {
+    return businesses.find((b) => b.id === businessId)?.services ?? [];
+  }
 
   function updateCreateForm<K extends keyof CreateBookingDto>(key: K, value: CreateBookingDto[K]) {
     setCreateForm((prev) => ({ ...prev, [key]: value }));
@@ -124,7 +129,6 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
     finally { setDeletingBookingId(null); }
   }
 
-  // Selector reutilizable para cliente y negocio
   function CustomerSelect({ value, onChange }: { value: number; onChange: (v: number) => void }) {
     return (
       <select className="select" value={value} onChange={(e) => onChange(Number(e.target.value))} required>
@@ -136,12 +140,40 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
     );
   }
 
-  function BusinessSelect({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  function BusinessSelect({ value, onChange, onChangeClear }: { value: number; onChange: (v: number) => void; onChangeClear: () => void }) {
     return (
-      <select className="select" value={value} onChange={(e) => onChange(Number(e.target.value))} required>
+      <select className="select" value={value} onChange={(e) => { onChange(Number(e.target.value)); onChangeClear(); }} required>
         <option value={0} disabled>Selecciona negocio</option>
         {businesses.map((b) => (
           <option key={b.id} value={b.id}>{b.name}</option>
+        ))}
+      </select>
+    );
+  }
+
+  function ServiceSelect({ businessId, value, onChange }: { businessId: number; value: string; onChange: (v: string) => void }) {
+    const services = getServicesForBusiness(businessId);
+    if (businessId === 0) {
+      return (
+        <select className="select select--disabled" disabled>
+          <option>Selecciona primero un negocio</option>
+        </select>
+      );
+    }
+    if (services.length === 0) {
+      return (
+        <select className="select select--disabled" disabled>
+          <option>Este negocio no tiene servicios</option>
+        </select>
+      );
+    }
+    return (
+      <select className="select" value={value} onChange={(e) => onChange(e.target.value)} required>
+        <option value="" disabled>Selecciona un servicio</option>
+        {services.map((s) => (
+          <option key={s.id ?? s.name} value={s.name}>
+            {s.name}{s.price ? ` — ${s.price}€` : ""}
+          </option>
         ))}
       </select>
     );
@@ -196,8 +228,16 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
                 <option value="paid">{t("statusPaid")}</option>
               </select>
               <CustomerSelect value={createForm.customerId} onChange={(v) => updateCreateForm("customerId", v)} />
-              <BusinessSelect value={createForm.businessId} onChange={(v) => updateCreateForm("businessId", v)} />
-              <input className="input input--full" type="text" value={createForm.serviceName} onChange={(e) => updateCreateForm("serviceName", e.target.value)} placeholder={t("colService")} required />
+              <BusinessSelect
+                value={createForm.businessId}
+                onChange={(v) => updateCreateForm("businessId", v)}
+                onChangeClear={() => updateCreateForm("serviceName", "")}
+              />
+              <ServiceSelect
+                businessId={createForm.businessId}
+                value={createForm.serviceName ?? ""}
+                onChange={(v) => updateCreateForm("serviceName", v)}
+              />
             </div>
             {errorMessage && <div className="message-error">{errorMessage}</div>}
             <div className="message-row">
@@ -225,8 +265,16 @@ export default function BookingsClient({ initialBookings }: { initialBookings: B
                 <option value="paid">{t("statusPaid")}</option>
               </select>
               <CustomerSelect value={editForm.customerId} onChange={(v) => updateEditForm("customerId", v)} />
-              <BusinessSelect value={editForm.businessId} onChange={(v) => updateEditForm("businessId", v)} />
-              <input className="input input--full" type="text" value={editForm.serviceName} onChange={(e) => updateEditForm("serviceName", e.target.value)} placeholder={t("colService")} required />
+              <BusinessSelect
+                value={editForm.businessId}
+                onChange={(v) => updateEditForm("businessId", v)}
+                onChangeClear={() => updateEditForm("serviceName", "")}
+              />
+              <ServiceSelect
+                businessId={editForm.businessId}
+                value={editForm.serviceName ?? ""}
+                onChange={(v) => updateEditForm("serviceName", v)}
+              />
             </div>
             {errorMessage && <div className="message-error">{errorMessage}</div>}
             <div className="message-row">
