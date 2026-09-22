@@ -4,6 +4,13 @@ import { useState, useEffect } from "react";
 import type { Customer, CreateCustomerDto, UpdateCustomerDto, BusinessOption } from "@/lib/api";
 import { createCustomer, updateCustomer, deleteCustomer, getBusinessOptions } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { getTokenPayload } from "@/lib/auth";
+
+function excludeCurrentAdmin(customers: Customer[]): Customer[] {
+  const payload = getTokenPayload();
+  if (payload?.role !== "admin" || !Number.isFinite(payload.sub)) return customers;
+  return customers.filter((customer) => customer.id !== payload.sub);
+}
 
 export default function CustomersClient({ initialCustomers }: { initialCustomers: Customer[] }) {
   const { t } = useI18n();
@@ -55,7 +62,7 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
             return r.json() as Promise<Customer[]>;
           }
         );
-        setCustomers(data);
+        setCustomers(excludeCurrentAdmin(data));
       } catch (err) {
         console.error("Error al cargar clientes:", err);
       }
@@ -76,6 +83,10 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
 
   async function handleCreateSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (createForm.businessId <= 0) {
+      setErrorMessage("Selecciona un negocio antes de crear el cliente.");
+      return;
+    }
     const phoneError = validatePhone(createForm.phone);
     if (phoneError) { setPhoneCreateError(phoneError); return; }
     setLoading(true); setErrorMessage(""); setSuccessMessage("");
@@ -85,7 +96,9 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
       setIsCreateOpen(false);
       setCreateForm({ name: "", email: "", phone: "", businessId: businesses[0]?.id ?? 0 });
       setSuccessMessage(t("customerCreated"));
-    } catch { setErrorMessage(t("customerCreateError")); }
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : t("customerCreateError"));
+    }
     finally { setLoading(false); }
   }
 

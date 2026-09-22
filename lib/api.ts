@@ -1,3 +1,5 @@
+import { getTokenPayload } from "@/lib/auth";
+
 export type BookingStatus = "pending" | "confirmed" | "paid";
 
 export interface Booking {
@@ -110,6 +112,12 @@ export interface UpdateReviewDto {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
+function excludeCurrentAdmin(customers: Customer[]): Customer[] {
+  const payload = getTokenPayload();
+  if (payload?.role !== "admin" || !Number.isFinite(payload.sub)) return customers;
+  return customers.filter((customer) => customer.id !== payload.sub);
+}
+
 export async function getAppointments(): Promise<Booking[]> {
   const res = await fetch(`${API_URL}/appointments`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al obtener las reservas");
@@ -145,22 +153,37 @@ export async function deleteAppointment(id: number): Promise<{ message: string }
 export async function getCustomers(): Promise<Customer[]> {
   const res = await fetch(`${API_URL}/customers`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al obtener los clientes");
-  return res.json();
+  return excludeCurrentAdmin(await res.json());
 }
 
 export async function getCustomersWithNextAppointment(): Promise<Customer[]> {
   const res = await fetch(`${API_URL}/customers/with-next-appointment`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al obtener los clientes con citas");
-  return res.json();
+  return excludeCurrentAdmin(await res.json());
 }
 
 export async function createCustomer(data: CreateCustomerDto): Promise<Customer> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const res = await fetch(`${API_URL}/customers`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Error al crear el cliente");
+  if (!res.ok) {
+    let message = "Error al crear el cliente";
+    try {
+      const error = await res.json();
+      if (Array.isArray(error.message)) message = error.message.join(", ");
+      else if (typeof error.message === "string") message = error.message;
+      else if (typeof error.error === "string") message = error.error;
+    } catch {
+      // Mantener el mensaje genérico si la respuesta no es JSON.
+    }
+    throw new Error(message);
+  }
   return res.json();
 }
 

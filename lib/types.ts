@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 export type AppointmentStatus = "pending" | "confirmed" | "paid";
 
 export type Appointment = {
@@ -9,16 +8,4 @@ export type Appointment = {
   customerId: number;
   businessId: number;
   serviceName: string;
-=======
-export type AppointmentStatus = "pending" | "confirmed" | "paid";
-
-export type Appointment = {
-  id: number;
-  date: string;
-  time: string;
-  status: AppointmentStatus;
-  customerId: number;
-  businessId: number;
-  serviceName: string;
->>>>>>> main
 };
